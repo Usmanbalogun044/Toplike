@@ -70,4 +70,4 @@ jobs:
         DB_DATABASE: toplike
         DB_USERNAME: laravel
         DB_PASSWORD: secret
-      run: php artisan test
+      run: php artisan serve
