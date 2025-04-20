@@ -31,7 +31,7 @@ jobs:
       - name: Configure .env for Render PostgreSQL
         run: |
           echo "DB_CONNECTION=pgsql" >> .env
-          echo "DB_HOST=dpg-d02d25juibrs73aookk0-a" >> .env
+          echo "DB_HOST=dpg-d02d25juibrs73aookk0-a.oregon-postgres.render.com" >> .env
           echo "DB_PORT=5432" >> .env
           echo "DB_DATABASE=toplike" >> .env
           echo "DB_USERNAME=topliketest" >> .env
