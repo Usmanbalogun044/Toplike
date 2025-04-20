@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\challenge;
+use App\Models\challengeEntry;
 use App\Models\Post;
 use App\Models\PostMedia;
 use Illuminate\Http\Request;
@@ -11,6 +13,36 @@ class postController extends Controller
 {
     public function createPost(Request $request)
     {
+     $user = $request->user();
+    $currentWeek = now()->weekOfYear;
+    $year = now()->year;
+
+    $challenge = challenge::where('week_number', $currentWeek)
+                          ->where('year', $year)
+                          ->first();
+
+    if (!$challenge) {
+        return response()->json([
+            'message' => 'No active challenge this week.',
+        ], 404);
+    }
+
+    $entry = challengeEntry::where('user_id', $user->id)
+                           ->where('challenge_id', $challenge->id)
+                           ->first();
+
+    if (!$entry || !$entry->has_paid) {
+        return response()->json([
+            'message' => 'You must pay for the challenge to create a post.',
+        ], 403);
+    }
+
+    if ($entry->has_posted) {
+        return response()->json([
+            'message' => 'You have already posted for this week\'s challenge.',
+        ], 403);
+    }
+
         Try {
             $request->validate([
                 'caption' => 'nullable|string',
@@ -38,6 +70,8 @@ class postController extends Controller
             }
     
             $post->media()->saveMany($media);
+            $entry->has_posted = true;
+            $entry->save();
     
             return response()->json([
                 'message' => 'Post created successfully',
@@ -70,6 +104,35 @@ class postController extends Controller
             $posts = Post::with(['media', 'user'])->where('user_id', $id)->where('is_visible', true)->latest()->paginate(10);
     
             return response()->json($posts);
+        }
+        public function checkifuserhasposted(Request $request){
+            $user = $request->user();
+            $currentWeek = now()->weekOfYear;
+        $year = now()->year;
+
+        $challenge = challenge::where('week_number', $currentWeek)
+                            ->where('year', $year)
+                            ->first();
+
+        if (!$challenge) {
+            return response()->json([
+                'message' => 'No active challenge this week.',
+            ], 404);
+        }
+
+        $entry = challengeEntry::where('user_id', $user->id)
+                            ->where('challenge_id', $challenge->id)
+                            ->first();
+
+        if (!$entry || !$entry->has_paid) {
+            return response()->json([
+                'message' => 'You must pay for the challenge to create a post.',
+            ], 403);
+        }
+        return response()->json([
+            'message' => 'continue to post ',
+        ])->setStatusCode(200,'continue to post');
+
         }
 
     }

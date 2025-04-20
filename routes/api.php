@@ -60,6 +60,7 @@ Route::middleware(['api','auth.user','verified'])->group(function () {
         Route::get('/post/all', 'getPosts');
         Route::post('/post/create', 'createPost');
         Route::get('/post/{id}', 'getPost');
+        Route::get('/has-user-post','checkifuserhasposted');
         Route::get('/post/user/{id}', 'getUserPosts');
     });
     Route::controller(LikeController::class)->group(function(){
