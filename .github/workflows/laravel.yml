@@ -5,68 +5,63 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
-  laravel-tests:
+  laravel-ngrok:
     runs-on: ubuntu-latest
 
-    services:
-      mysql:
-        image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: toplike
-          MYSQL_USER: laravel
-          MYSQL_PASSWORD: secret
-        ports:
-          - 3306:3306
-        options: --health-cmd="mysqladmin ping --silent" --health-interval=10s --health-timeout=5s --health-retries=3
-
     steps:
-    - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '8.2'
-        extensions: mbstring, bcmath, mysql, pdo_mysql
-        coverage: none
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, bcmath, pdo, pdo_pgsql
+          coverage: none
 
-    - name: Cache Composer dependencies
-      uses: actions/cache@v3
-      with:
-        path: vendor
-        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-php-
-    - name: Install Dependencies
-      run: composer install --prefer-dist --no-progress --no-suggest
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest
 
-    - name: Copy .env
-      run: cp .env.example .env
+      - name: Copy .env
+        run: cp .env.example .env
 
-    - name: Generate App Key
-      run: php artisan key:generate
+      - name: Configure .env for Render PostgreSQL
+        run: |
+          echo "DB_CONNECTION=pgsql" >> .env
+          echo "DB_HOST=dpg-d02d25juibrs73aookk0-a" >> .env
+          echo "DB_PORT=5432" >> .env
+          echo "DB_DATABASE=toplike" >> .env
+          echo "DB_USERNAME=topliketest" >> .env
+          echo "DB_PASSWORD=jmZAKYQtr05BhZhqM76DJjT4t4llJqpb" >> .env
+          echo "APP_URL=http://127.0.0.1:8000" >> .env
 
-    - name: Set Directory Permissions
-      run: chmod -R 777 storage bootstrap/cache
+      - name: Generate app key
+        run: php artisan key:generate
 
-    - name: Run Migrations
-      env:
-        DB_CONNECTION: mysql
-        DB_HOST: 127.0.0.1
-        DB_PORT: 3306
-        DB_DATABASE: toplike
-        DB_USERNAME: laravel
-        DB_PASSWORD: secret
-      run: php artisan migrate --force
+      - name: Set directory permissions
+        run: chmod -R 777 storage bootstrap/cache
 
-    - name: Run Tests
-      env:
-        DB_CONNECTION: mysql
-        DB_HOST: 127.0.0.1
-        DB_PORT: 3306
-        DB_DATABASE: toplike
-        DB_USERNAME: laravel
-        DB_PASSWORD: secret
-      run: php artisan serve
+      - name: Run migrations
+        run: php artisan migrate --force
+
+      - name: Install Ngrok
+        run: |
+          curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null
+          echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | sudo tee /etc/apt/sources.list.d/ngrok.list
+          sudo apt update && sudo apt install ngrok
+
+      - name: Start Laravel + Ngrok
+        env:
+          NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
+        run: |
+          nohup php artisan serve --host=0.0.0.0 --port=8000 > laravel.log 2>&1 &
+          sleep 5
+          ngrok config add-authtoken 2kaphSlfriqYhFNzsSqowNZthIK_6qY4Xb5pBKhKpVfKXhcxE
+          nohup ngrok http 8000 > ngrok.log 2>&1 &
+          sleep 10
+
+      - name: Show Ngrok Public URL
+        run: curl http://127.0.0.1:4040/api/tunnels
