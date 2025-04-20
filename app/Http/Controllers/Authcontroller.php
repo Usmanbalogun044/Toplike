@@ -64,32 +64,34 @@ class Authcontroller extends Controller
     public function login(Request $request)
     {
         // Validate incoming request
-        $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|string',
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email|',
+            'password' => 'required|string|',
+
         ]);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 400);
+        }
+    try {
+        $user = User::where('email', $request->email)->first();
 
-        // Attempt to log the user in
-        if (Auth::attempt($credentials)) {
-            $user = Auth::user();
-            
-            // Check if email is verified
-            if (!$user->hasVerifiedEmail()) {
-                return response()->json(['message' => 'Please verify your email before logging in.'], 403);
-            }
-
-            // Generate an API token using Laravel Sanctum (or Passport)
-            $token = $user->createToken('TopLikeApp')->plainTextToken;
-            // createwallet
-
-            return response()->json([
-                'message' => 'Login successful',
-                'token' => $token,
-                'user' => $user,
-            ]);
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
-        return response()->json(['message' => 'Invalid credentials'], 401);
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'message' => 'Login successful',
+            'token' => $token,
+            'user' => $user
+        ], 200);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Something went wrong. Please try again.'
+        ], 500);
+    }
     }
     public function logout(Request $request)
     {
