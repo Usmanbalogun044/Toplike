@@ -10,8 +10,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Notification;
 use App\Http\Controllers\challengeController;
-
-
+use App\Http\Controllers\paymentController;
+use App\Http\Controllers\WalletController;
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
@@ -71,6 +71,11 @@ Route::middleware(['api','auth.user','verified'])->group(function () {
     Route::controller(challengeController::class)->group(function(){
         Route::post('/join/challenge', 'joinChallenge');
         Route::get('/paystack/callback', 'callback')->name('payment.callback');
+    });
+  Route::controller(WalletController::class)->group(function(){
+        Route::get('/wallet', 'wallet');
+        Route::get('/wallet/transactions', 'walletTransactions');
+        // Route::post('/wallet/withdraw', 'withdrawFunds');
     });
 
     // Route::controller('App\Http\Controllers\NotificationController')->group(function(){

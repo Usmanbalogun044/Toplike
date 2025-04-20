@@ -100,9 +100,9 @@ class challengeController extends Controller
 
             if ($user && $challenge) {
                 // Update wallet balance
-                $user->wallet->balance -= $challenge->entry_fee;
-                $user->wallet->last_transaction_at = now();
-                $user->wallet->save();
+                // $user->wallet->balance -= $challenge->entry_fee;
+                // $user->wallet->last_transaction_at = now();
+                // $user->wallet->save();
 
                 // Create wallet transaction
                 WalletTransaction::create([
