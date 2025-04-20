@@ -16,7 +16,9 @@ use App\Http\Controllers\WalletController;
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
 });
-
+Route::get('/tunnel', function (Request $request) {
+    return response()->json(['message' => 'Tunnel is working']);
+});
 Route::controller(Authcontroller::class)->group(function(){
     Route::post('/signup','register');
     Route::post('/signin','login');
