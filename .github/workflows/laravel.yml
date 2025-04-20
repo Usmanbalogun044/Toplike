@@ -21,16 +21,6 @@ jobs:
       - name: Copy .env
         run: cp .env.example .env
 
-      - name: Set environment variables
-        # run: |
-        #   echo "DB_CONNECTION=pgsql" >> .env
-        #   echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
-        #   echo "DB_PORT=5432" >> .env
-        #   echo "DB_DATABASE=${{ secrets.DB_DATABASE }}" >> .env
-        #   echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
-        #   echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
-        #   echo "APP_URL=http://127.0.0.1:8000" >> .env
-
       - name: Install Dependencies
         run: composer install --prefer-dist --no-progress --no-suggest
 
