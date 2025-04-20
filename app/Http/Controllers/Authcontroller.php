@@ -34,12 +34,14 @@ class Authcontroller extends Controller
             'password' => Hash::make($request->password),
             'email_verification_token'=>$token
         ]);
-// dd($user);
+        //createwallet
+        $user->createWallet();
         // $user = $notifiable;
    
         // $user->update(['email_verification_token' => $token]);
         $apiUrl = route('api.verification.verify', ['id' => $user->id, 'token' => $token]);
         $token = $user->createToken('TopLikeApp')->plainTextToken;
+       
 
         $appname = env('APP_NAME');
         $mailfrom=env('MAIL_FROM_ADDRESS');
@@ -78,6 +80,7 @@ class Authcontroller extends Controller
 
             // Generate an API token using Laravel Sanctum (or Passport)
             $token = $user->createToken('TopLikeApp')->plainTextToken;
+            // createwallet
 
             return response()->json([
                 'message' => 'Login successful',

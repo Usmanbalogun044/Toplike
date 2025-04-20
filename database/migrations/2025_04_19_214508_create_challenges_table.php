@@ -15,10 +15,10 @@ return new class extends Migration
             $table->id();
             $table->unsignedInteger('week_number');
             $table->year('year');
-            $table->decimal('entry_fee', 10, 2)->default(500.00);
+            $table->decimal('entry_fee', 10, 2)->default(500);
             $table->decimal('total_pool', 12, 2)->default(0);
-            $table->timestamp('starts_at');
-            $table->timestamp('ends_at');
+            $table->timestamp('starts_at')->nullable();  
+            $table->timestamp('ends_at')->nullable();    
             $table->timestamps();
         });
     }

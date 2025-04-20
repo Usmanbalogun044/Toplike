@@ -80,5 +80,17 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasOne(UserWallet::class);
     }
+    public function createwallet()
+    {
+        return $this->hasOne(UserWallet::class)->create([
+            'user_id' => $this->id,
+            'balance' => 0,
+            'last_transaction_at' => now(),
+        ]);
+    }
+    public function challenge()
+    {
+        return $this->hasMany(Challenge::class);
+    }
 
 }

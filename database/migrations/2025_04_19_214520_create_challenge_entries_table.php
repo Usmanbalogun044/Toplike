@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('challenge_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->boolean('has_posted')->default(false);
+            $table->boolean('has_paid')->default(false);
             $table->timestamps();
 
             $table->unique(['challenge_id', 'user_id']);

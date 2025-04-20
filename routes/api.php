@@ -8,6 +8,8 @@ use App\Models\User;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Notification;
+use App\Http\Controllers\challengeController;
 
 
 
@@ -65,5 +67,15 @@ Route::middleware(['api','auth.user','verified'])->group(function () {
         // Route::get('/likes/user/{userId}', 'getUserLikes');
         // Route::get('/likes/all', 'getAllLikes');
     });
+
+    Route::controller(challengeController::class)->group(function(){
+        Route::post('/join/challenge', 'joinChallenge');
+        Route::get('/paystack/callback', 'callback')->name('payment.callback');
+    });
+
+    // Route::controller('App\Http\Controllers\NotificationController')->group(function(){
+    //     Route::get('/notifications', 'getNotifications');
+    //     Route::post('/notifications/mark-as-read', 'markAsRead');
+    // });
    
 });

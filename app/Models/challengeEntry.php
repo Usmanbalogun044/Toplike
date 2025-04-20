@@ -6,7 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class challengeEntry extends Model
 {
-    protected $fillable = ['challenge_id', 'user_id', 'has_posted'];
+    protected $fillable = ['challenge_id', 'user_id', 'has_posted', 'has_paid'];
+    protected $casts = [
+        'has_posted' => 'boolean',
+        'is_winner' => 'boolean',
+        'is_visible' => 'boolean',
+        'is_approved' => 'boolean',
+        'is_rejected' => 'boolean',
+        'is_winner_paid' => 'boolean',
+    ];
 
     public function challenge()
     {
