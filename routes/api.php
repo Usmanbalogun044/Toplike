@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Notification;
 use App\Http\Controllers\challengeController;
 use App\Http\Controllers\paymentController;
 use App\Http\Controllers\WalletController;
+use App\Http\Controllers\weelychallengeleaderboardController;
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
@@ -79,6 +80,9 @@ Route::middleware(['api','auth.user','verified'])->group(function () {
         Route::get('/wallet', 'wallet');
         Route::get('/wallet/transactions', 'walletTransactions');
         // Route::post('/wallet/withdraw', 'withdrawFunds');
+    });
+    Route::controller(weelychallengeleaderboardController::class)->group(function(){
+        Route::get('/weekly/challenge/leaderboard', 'leaderboard');
     });
 
     // Route::controller('App\Http\Controllers\NotificationController')->group(function(){

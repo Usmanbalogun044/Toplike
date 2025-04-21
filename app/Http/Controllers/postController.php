@@ -26,6 +26,12 @@ class postController extends Controller
             'message' => 'No active challenge this week.',
         ], 404);
     }
+    //check if challenge has being completed
+    if ($challenge->is_completed) {
+        return response()->json([
+            'message' => 'This week\'s challenge has already been completed.',
+        ], 403);
+    }
 
     $entry = challengeEntry::where('user_id', $user->id)
                            ->where('challenge_id', $challenge->id)

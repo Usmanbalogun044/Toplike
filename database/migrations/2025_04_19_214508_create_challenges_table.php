@@ -18,7 +18,8 @@ return new class extends Migration
             $table->decimal('entry_fee', 10, 2)->default(500);
             $table->decimal('total_pool', 12, 2)->default(0);
             $table->timestamp('starts_at')->nullable();  
-            $table->timestamp('ends_at')->nullable();    
+            $table->timestamp('ends_at')->nullable();  
+            $table->boolean('is_completed')->default(false); 
             $table->timestamps();
         });
     }
