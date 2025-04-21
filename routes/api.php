@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Authcontroller;
+use App\Http\Controllers\bankaccountController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\postController;
 use App\Models\Post;
@@ -13,6 +14,7 @@ use App\Http\Controllers\challengeController;
 use App\Http\Controllers\paymentController;
 use App\Http\Controllers\WalletController;
 use App\Http\Controllers\weelychallengeleaderboardController;
+use App\Http\Controllers\withdrawController;
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
@@ -51,7 +53,15 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         return $request->user();
     });
 });
-
+   Route::get('/bankaccount/list', function (Request $request) {
+    //paystack api to list bank
+    $paystack = new \Yabacon\Paystack(env('PAYSTACK_SECRET_KEY'));
+    $response = $paystack->bank->list();
+    return response()->json([
+        'message' => 'Banks retrieved successfully',
+        'banks' => $response,
+    ])->setStatusCode(200, 'Banks retrieved successfully');
+});
 Route::middleware(['api','auth.user','verified'])->group(function () {
     Route::post('/user/update', 'App\Http\Controllers\userController@updateProfile');
     Route::get('/myprofile', 'App\Http\Controllers\userController@me');
@@ -67,9 +77,6 @@ Route::middleware(['api','auth.user','verified'])->group(function () {
     Route::controller(LikeController::class)->group(function(){
         Route::post('/like-post/{postId}','likePost');
         Route::get('/like/list-user/{postId}', 'userthatlikepost');
-        // Route::post('/unlike-post/{postId}','unlikePost');
-        // Route::get('/likes/user/{userId}', 'getUserLikes');
-        // Route::get('/likes/all', 'getAllLikes');
     });
 
     Route::controller(challengeController::class)->group(function(){
@@ -79,15 +86,18 @@ Route::middleware(['api','auth.user','verified'])->group(function () {
   Route::controller(WalletController::class)->group(function(){
         Route::get('/wallet', 'wallet');
         Route::get('/wallet/transactions', 'walletTransactions');
-        // Route::post('/wallet/withdraw', 'withdrawFunds');
     });
     Route::controller(weelychallengeleaderboardController::class)->group(function(){
         Route::get('/weekly/challenge/leaderboard', 'leaderboard');
     });
-
-    // Route::controller('App\Http\Controllers\NotificationController')->group(function(){
-    //     Route::get('/notifications', 'getNotifications');
-    //     Route::post('/notifications/mark-as-read', 'markAsRead');
-    // });
+    Route::controller(bankaccountController::class)->group(function(){
+        Route::post('/bankaccount/create', 'updateOrCreateBankAccount');
+        Route::get('/bankaccount', 'getBankAccount');
+        Route::get('/bankaccount/list', 'ListNigerianBanks');
+    });
+    Route::controller(withdrawController::class)->group(function(){
+        Route::post('/withdraw', 'withdraw');
+        Route::get('/withdraw/history', 'withdrawHistory');
+    });
    
 });
