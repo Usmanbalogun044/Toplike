@@ -36,7 +36,7 @@ class Authcontroller extends Controller
         ]);
         //createwallet
         $user->createWallet();
-        // $user = $notifiable;
+
    
         // $user->update(['email_verification_token' => $token]);
         $apiUrl = route('api.verification.verify', ['id' => $user->id, 'token' => $token]);
@@ -61,6 +61,7 @@ class Authcontroller extends Controller
             'token'=>$token
 ], 201);
     }
+
     public function login(Request $request)
     {
         // Validate incoming request

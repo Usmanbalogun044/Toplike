@@ -15,6 +15,7 @@ use App\Http\Controllers\paymentController;
 use App\Http\Controllers\WalletController;
 use App\Http\Controllers\weelychallengeleaderboardController;
 use App\Http\Controllers\withdrawController;
+use Illuminate\Support\Facades\Http;
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
@@ -100,4 +101,18 @@ Route::middleware(['api','auth.user','verified'])->group(function () {
         Route::get('/withdraw/history', 'withdrawHistory');
     });
    
+});
+
+Route::post('/test', function (Request $request) {
+  //consumingapi
+  $url = 'http://toplike.up.railway.app/api/signup';
+
+    $response=Http::post($url, [
+        'name' => 'usmanbalogun',
+        'username' => 'dollarhunter',
+        'email' => 'dollarhunter044@gmail.com',
+        'password' => 'password',
+    ]);
+    dd($response->json());
+    // ddd($response);
 });
