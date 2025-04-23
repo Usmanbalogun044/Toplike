@@ -23,7 +23,7 @@ return [
     'allowed_origins' => [],
 
     // Use wildcard pattern that matches everything
-    'allowed_origins_patterns' => ['.*'],
+    'allowed_origins_patterns' => [],
 
     'allowed_headers' => ['*'],
 
