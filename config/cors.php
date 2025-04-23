@@ -14,18 +14,15 @@ return [
     | To learn more: https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
     |
     */
-
     'paths' => ['api/*', 'sanctum/csrf-cookie'],
 
     'allowed_methods' => ['*'],
 
-    // Leave empty
-    'allowed_origins' => [],
+    'allowed_origins' => ['*'], // Allow all origins
 
-    // Use wildcard pattern that matches everything
     'allowed_origins_patterns' => [],
 
-    'allowed_headers' => ['*'],
+    'allowed_headers' => ['*'], // Allow all headers
 
     'exposed_headers' => [],
 
