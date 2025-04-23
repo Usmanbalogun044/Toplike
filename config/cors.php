@@ -19,9 +19,9 @@ return [
 
     'allowed_methods' => ['*'],
 
-   'allowed_origins' => explode(',', env('FRONTEND_URLS', 'http://localhost:3000')),
+    'allowed_origins' => [env('FRONTEND_URL', '*')],
 
-    'allowed_origins_patterns' => [],
+    'allowed_origins_patterns' => ['*'],
 
     'allowed_headers' => ['*'],
 
