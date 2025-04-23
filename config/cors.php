@@ -15,12 +15,14 @@ return [
     |
     */
 
-    'paths' => ['*'],
+    'paths' => ['api/*', 'sanctum/csrf-cookie'],
 
     'allowed_methods' => ['*'],
 
+    // Leave empty
     'allowed_origins' => [],
 
+    // Use wildcard pattern that matches everything
     'allowed_origins_patterns' => ['.*'],
 
     'allowed_headers' => ['*'],
