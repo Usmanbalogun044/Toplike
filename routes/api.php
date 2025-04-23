@@ -16,6 +16,7 @@ use App\Http\Controllers\WalletController;
 use App\Http\Controllers\weelychallengeleaderboardController;
 use App\Http\Controllers\withdrawController;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
@@ -39,15 +40,22 @@ Route::post('/verify/{id}/{token}', function (Request $request, $id, $token) {
         return response()->json(['message' => 'Invalid verification token'], 400);
     }
 })->name('api.verification.verify');
-
-// Resend verification email
-Route::post('/email/resend', function (Request $request) {
-    if ($request->user()->hasVerifiedEmail()) {
-        return response()->json(['message' => 'Email already verified.']);
+//resend verification
+Route::post('/resend-verification', function (Request $request) {
+    $user = User::where('email', $request->email)->first();
+    if ($user) {
+        $token = Str::random(40);
+        $user->update(['email_verification_token' => $token]);
+        // Send verification email
+        $apiUrl = route('api.verification.verify', ['id' => $user->id, 'token' => $token]);
+        // Send email logic here
+        return response()->json(['message' => 'Verification email resent successfully'], 200);
+    } else {
+        return response()->json(['message' => 'User not found'], 404);
     }
-    $request->user()->sendEmailVerificationNotification();
-    return response()->json(['message' => 'Verification link sent.']);
-})->middleware(['auth:sanctum'])->name('verification.send');
+})->name('api.resend-verification');
+
+
 
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::get('/user/profile', function (Request $request) {
@@ -103,15 +111,16 @@ Route::middleware(['api','auth.user','verified'])->group(function () {
    
 });
 
-Route::post('/test', function (Request $request) {
+Route::get('/test', function (Request $request) {
   //consumingapi
-  $url = 'http://toplike.up.railway.app/api/signup';
+  $url = 'https://toplike.up.railway.app/api/signup';
 
     $response=Http::post($url, [
         'name' => 'usmanbalogun',
         'username' => 'dollarhunter',
         'email' => 'dollarhunter044@gmail.com',
         'password' => 'password',
+        'password_confirmation' => 'password',
     ]);
     dd($response->json());
     // ddd($response);
