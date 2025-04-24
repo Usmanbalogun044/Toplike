@@ -35,12 +35,15 @@ Route::post('/verify/{id}/{token}', function (Request $request, $id, $token) {
     if ($user->email_verification_token == $token) {
         $user->update(['email_verified_at' => now(), 'email_verification_token' => null]);
         // dd($user);
-        return response()->json(['message' => 'Email verified successfully'], 200);
+        $frontendurl='https://toplikefe.up.railway.app/';
+        return redirect($frontendurl.'/login');
+        // return response()->json(['message' => 'Email verified successfully'], 200);
     } else {
         return response()->json(['message' => 'Invalid verification token'], 400);
     }
 })->name('api.verification.verify');
 //resend verification
+
 Route::post('/resend-verification', function (Request $request) {
     $user = User::where('email', $request->email)->first();
     if ($user) {
@@ -54,6 +57,21 @@ Route::post('/resend-verification', function (Request $request) {
         return response()->json(['message' => 'User not found'], 404);
     }
 })->name('api.resend-verification');
+
+// Route::post('/verify/{id}/{token}', function (Request $request, $id, $token) {
+//     $user = User::findOrFail($id);
+
+//     if ($user->email_verification_token == $token) {
+//         $user->update([
+//             'email_verified_at' => now(),
+//             'email_verification_token' => null
+//         ]);
+
+//         return redirect(env('FRONTEND_URL') . '/verified?status=success');
+//     } else {
+//         return redirect(env('FRONTEND_URL') . '/verified?status=fail');
+//     }
+// })->name('api.verification.verify');
 
 
 
