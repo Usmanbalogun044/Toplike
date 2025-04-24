@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Notification;
 use App\Http\Controllers\challengeController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\paymentController;
 use App\Http\Controllers\WalletController;
 use App\Http\Controllers\weelychallengeleaderboardController;
@@ -18,17 +19,13 @@ use App\Http\Controllers\withdrawController;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
-Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
-    return $request->user();
-});
-Route::get('/tunnel', function (Request $request) {
-    return response()->json(['message' => 'Tunnel is working']);
-});
+
 Route::controller(Authcontroller::class)->group(function(){
     Route::post('/signup','register');
     Route::post('/signin','login');
     Route::post('/logout','logout')->middleware('auth:sanctum');
 });
+
 Route::post('/verify/{id}/{token}', function (Request $request, $id, $token) {
     $user = User::findOrFail($id);
     // Verify the token
@@ -57,22 +54,6 @@ Route::post('/resend-verification', function (Request $request) {
         return response()->json(['message' => 'User not found'], 404);
     }
 })->name('api.resend-verification');
-
-// Route::post('/verify/{id}/{token}', function (Request $request, $id, $token) {
-//     $user = User::findOrFail($id);
-
-//     if ($user->email_verification_token == $token) {
-//         $user->update([
-//             'email_verified_at' => now(),
-//             'email_verification_token' => null
-//         ]);
-
-//         return redirect(env('FRONTEND_URL') . '/verified?status=success');
-//     } else {
-//         return redirect(env('FRONTEND_URL') . '/verified?status=fail');
-//     }
-// })->name('api.verification.verify');
-
 
 
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
@@ -126,20 +107,13 @@ Route::middleware(['api','auth.user','verified'])->group(function () {
         Route::post('/withdraw', 'withdraw');
         Route::get('/withdraw/history', 'withdrawHistory');
     });
+    Route::controller(NotificationController::class)->group(function(){
+        Route::get('/notifications', 'getUserNotifications');
+        Route::get('/notifications/mark-as-read', 'markAsRead');
+        Route::get('/notifications/mark-as-read/{id}', 'markAsReadById');
+        Route::delete('/notifications/delete/{id}', 'deleteNotification');
+
+    });
    
 });
 
-Route::get('/test', function (Request $request) {
-  //consumingapi
-  $url = 'https://toplike.up.railway.app/api/signup';
-
-    $response=Http::post($url, [
-        'name' => 'usmanbalogun',
-        'username' => 'dollarhunter',
-        'email' => 'dollarhunter044@gmail.com',
-        'password' => 'password',
-        'password_confirmation' => 'password',
-    ]);
-    dd($response->json());
-    // ddd($response);
-});
