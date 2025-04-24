@@ -16,7 +16,7 @@ Route::get('/verify/{id}/{token}', function (Request $request, $id, $token) {
     if ($user->email_verification_token == $token) {
         $user->update(['email_verified_at' => now(), 'email_verification_token' => null]);
         // dd($user);
-        $frontendurl='https://toplikefe.up.railway.app/';
+        $frontendurl='https://toplikefe.up.railway.app';
         return redirect($frontendurl.'/login');
         // return response()->json(['message' => 'Email verified successfully'], 200);
     } else {
