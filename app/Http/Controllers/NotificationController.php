@@ -25,14 +25,15 @@ public function readnotification(Request $request){
     return response()->json(['message' => 'Notifications marked as read']);
 }
 
-public function readnotification(Request $request,$id){
-    $notification = $request->user()->notifications()->findOrFail($id);
-    $notification->markAsRead();
-    return response()->json(['message' => 'Notification marked as read']);
-}
+// public function readnotification(Request $request,$id){
+//     $notification = $request->user()->notifications()->findOrFail($id);
+//     $notification->markAsRead();
+//     return response()->json(['message' => 'Notification marked as read']);
+// }
 public function deleteNotification(Request $request, $id)
 {
     $notification = $request->user()->notifications()->findOrFail($id);
     $notification->delete();
     return response()->json(['message' => 'Notification deleted successfully']);
+}
 }
