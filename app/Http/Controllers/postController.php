@@ -123,7 +123,7 @@ class postController extends Controller
         if (!$challenge) {
             return response()->json([
                 'message' => 'No active challenge this week.',
-            ], 404);
+            ])->setStatusCode(404,'No active challenge this week');
         }
 
         $entry = challengeEntry::where('user_id', $user->id)
@@ -133,7 +133,7 @@ class postController extends Controller
         if (!$entry || !$entry->has_paid) {
             return response()->json([
                 'message' => 'You must pay for the challenge to create a post.',
-            ], 403);
+            ])->setStatusCode(403,'You must pay for the challenge to create a post');
         }
         return response()->json([
             'message' => 'continue to post ',
