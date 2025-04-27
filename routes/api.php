@@ -89,7 +89,7 @@ Route::middleware(['api','auth.user','verified'])->group(function () {
     Route::controller(bankaccountController::class)->group(function(){
         Route::post('/bankaccount/create', 'updateOrCreateBankAccount');
         Route::get('/bankaccount', 'getBankAccount');
-        Route::get('/bankaccount/list', 'Listnigerianigerianbanks');
+        Route::get('/banks/list', 'Listnigerianigerianbanks');
     });
     Route::controller(withdrawController::class)->group(function(){
         Route::post('/withdraw', 'withdraw');
