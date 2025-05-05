@@ -3,6 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
+
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
@@ -21,14 +25,18 @@ class userController extends Controller
         ]);
 
         if ($request->hasFile('profilepix')) {
-            // Delete old image if it exists
-            if ($user->profilepix) {
-                Storage::disk('public')->delete($user->profilepix);
+            if ($user->image_public_id) {
+              Cloudinary::uploadApi()->destroy($user->image_public_id);
+             
             }
-
-            // Store new image
-            $path = $request->file('profilepix')->store('profilepix', 'public');
-            $user->profile_picture =url('storage/'.$path);
+    
+            // Upload new image
+            $upload = Cloudinary::uploadApi()->upload($request->file('profilepix')->getRealPath(), [
+                'folder' => 'profile_picture',
+            ]);
+    
+            $user->profile_picture = $upload['secure_url'];
+            $user->image_public_id = $upload['public_id'];
         }
 
         $user->name = $request->input('name', $user->name);

@@ -8,6 +8,7 @@ use App\Models\Post;
 use App\Models\PostMedia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
 class postController extends Controller
 {
@@ -67,11 +68,13 @@ class postController extends Controller
             $media = [];
             foreach ($request->file('media') as $file) {
 
-                $storedPath = $file->store('posts', 'public');
-                $fullUrl = url('storage/' . $storedPath);
+                $upload = Cloudinary::uploadApi()->upload($file->getRealPath(), [
+                    'folder' => 'posts',
+                    'resource_type' => in_array($file->getClientOriginalExtension(), ['mp4', 'mov']) ? 'video' : 'image',
+                ]);
                 $media[] = new PostMedia([
                     'type' => in_array($file->getClientOriginalExtension(), ['jpg', 'jpeg', 'png']) ? 'image' : 'video',
-                    'file_path' => $fullUrl,
+                    'file_path' => $upload['secure_url'],
                 ]);
             }
     

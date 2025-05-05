@@ -31,7 +31,7 @@ class challengeController extends Controller
 
     if ($wallet && $wallet->balance >= $challenge->entry_fee) {
         // Deduct from wallet
-        $wallet->balance -= $user->challenge->entry_fee;
+        $wallet->balance -= $challenge->entry_fee;
         $wallet->last_transaction_at = now();
         $wallet->save();
 
