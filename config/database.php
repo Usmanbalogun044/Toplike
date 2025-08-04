@@ -30,6 +30,26 @@ return [
     */
 
     'connections' => [
+        
+         'pgsql_custom' => [
+    'driver' => 'pgsql',
+    'url' => env('DATABASE_URL'),
+    'host' => null,
+    'port' => null,
+    'database' => null,
+    'username' => env('DB_USERNAME'),
+    'password' => env('DB_PASSWORD'),
+    'charset' => 'utf8',
+    'prefix' => '',
+    'schema' => 'public',
+    'sslmode' => 'require',
+    'options' => [
+        PDO::ATTR_PERSISTENT => false,
+    ],
+    'dsn' => "pgsql:host=ep-orange-mountain-aed8iubr-pooler.c-2.us-east-2.aws.neon.tech;port=5432;dbname=neondb;sslmode=require;options=--options=endpoint=ep-orange-mountain-aed8iubr",
+],
+
+
 
         'sqlite' => [
             'driver' => 'sqlite',
@@ -95,6 +115,15 @@ return [
             'prefix_indexes' => true,
             'search_path' => 'public',
             'sslmode' => 'prefer',
+            'options' => env('DB_OPTIONS') ? [
+                PDO::ATTR_PERSISTENT => true,
+                PDO::ATTR_TIMEOUT => 5,
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_EMULATE_PREPARES => true,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                // This adds the SNI endpoint support required by Neon
+                PDO::ATTR_CONNECTION_STATUS => env('DB_OPTIONS'),
+            ] : [],
         ],
 
         'sqlsrv' => [
@@ -171,4 +200,5 @@ return [
 
     ],
 
+   
 ];
