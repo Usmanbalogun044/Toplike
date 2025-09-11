@@ -1,2 +1,3 @@
 release: php artisan migrate --force
-web: php artisan serve --host=0.0.0.0 --port=8000
+web: vendor/bin/heroku-php-apache2 public/
+worker: php artisan queue:work --sleep=3 --tries=3 --max-time=3600
