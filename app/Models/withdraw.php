@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class withdraw extends Model
+class Withdraw extends Model
 {
     protected $fillable = [
         'user_id',
@@ -23,14 +23,17 @@ class withdraw extends Model
     {
         return $this->belongsTo(User::class);
     }
+
     public function wallet()
     {
         return $this->belongsTo(UserWallet::class, 'user_id', 'user_id');
     }
+
     public function bankaccount()
     {
-        return $this->belongsTo(bankaccount::class, 'user_id', 'user_id');
+        return $this->belongsTo(BankAccount::class, 'user_id', 'user_id');
     }
+
     public function transactions()
     {
         return $this->hasMany(WalletTransaction::class, 'user_id', 'user_id');

@@ -102,6 +102,6 @@ Route::middleware(['api','auth.user','verified'])->group(function () {
         Route::delete('/notifications/delete/{id}', 'deleteNotification');
 
     });
-   
+
 });
 

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\challenge;
+use App\Models\Challenge;
 use Illuminate\Http\Request;
 
 class weelychallengeleaderboardController extends Controller
@@ -10,7 +10,7 @@ class weelychallengeleaderboardController extends Controller
     public function leaderboard(Request $request){
         $currentweek= now()->weekOfYear;
         $currentyear= now()->year;
-        $challenge= challenge::where('week_number', $currentweek)
+        $challenge= Challenge::where('week_number', $currentweek)
             ->where('year', $currentyear)
             ->first();
         if (!$challenge) {
@@ -28,11 +28,12 @@ class weelychallengeleaderboardController extends Controller
         $topPosts = $challenge->posts()
             ->withCount('likes')
             ->orderBy('likes_count', 'desc')
-            ->take(100)->with(['user:id,username,profile_picture'])
+            ->take(100)
+            ->with(['user:id,username,profile_picture'])
             ->get();
             // the totalpool of the challenge
         $totalPool = $challenge->total_pool;
-      $rewords = [
+      $rewards = [
             0 => 0.40, // Top 1
             1 => 0.10, // Top 2
             2 => 0.05, // Top 3

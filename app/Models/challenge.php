@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class challenge extends Model
+class Challenge extends Model
 {
     protected $fillable = ['week_number', 'year', 'entry_fee', 'total_pool', 'starts_at', 'ends_at','is_completed'];
     protected $casts = [

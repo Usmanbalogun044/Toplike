@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\challenge;
-use App\Models\challengeEntry;
+use App\Models\Challenge;
+use App\Models\ChallengeEntry;
 use App\Models\User;
 use App\Models\WalletTransaction;
 use Illuminate\Http\Request;
@@ -17,13 +17,13 @@ class challengeController extends Controller
     $currentWeek = now()->weekOfYear;
     $year = now()->year;
 
-    $challenge = challenge::firstOrCreate(
+    $challenge = Challenge::firstOrCreate(
         ['week_number' => $currentWeek, 'year' => $year],
         ['starts_at' => now()->startOfWeek(), 'ends_at' => now()->endOfWeek()]
     );
 
     // Check if already joined
-    if (challengeEntry::where('user_id', $user->id)->where('challenge_id', $challenge->id)->exists()) {
+    if (ChallengeEntry::where('user_id', $user->id)->where('challenge_id', $challenge->id)->exists()) {
         return response()->json(['message' => 'Already joined this week\'s challenge.']);
     }
 
@@ -90,7 +90,7 @@ class challengeController extends Controller
         ]);
 
         if ($response->status) {
-         
+
             $userId = $response->data->metadata->user_id;
             $challengeId = $response->data->metadata->challenge_id;
 

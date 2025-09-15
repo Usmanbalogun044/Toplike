@@ -10,17 +10,17 @@ class bankaccountController extends Controller
 {
     public function updateOrCreateBankAccount(Request $request)
     {
-        $user = $request->user();     
-    
+        $user = $request->user();
+
         $validated = $request->validate([
             'account_number' => 'required|string|max:10',
             'bank_name' => 'required|string|max:255',
             // 'account_type' => 'required|string|in:savings,current',
         ]);
-    
+
         try {
             $paystack = new \Yabacon\Paystack(env('PAYSTACK_SECRET_KEY'));
-    
+
             // Get list of banks from Paystack
             $response = $paystack->bank->list();
             $banks = $response->data;
@@ -28,26 +28,26 @@ class bankaccountController extends Controller
             // Find matching bank code by name
             $bankCode = collect($banks)->firstWhere('name', $validated['bank_name'])->code ?? null;
             // dd($bankCode);
-    
+
             if (!$bankCode) {
                 return response()->json(['message' => 'Invalid bank name. Please select a valid bank.'], 404);
             }
-    
+
             // Resolve account name
             $resolve = $paystack->bank->resolve([
                 'account_number' => $validated['account_number'],
                 'bank_code' => $bankCode,
             ]);
             // dd($resolve);
-    
+
             if (!$resolve->status) {
                 return response()->json(['message' => 'Account verification failed.'], 400);
             }
-    
+
             $accountName = $resolve->data->account_name;
-    
+
             // Save or update bank record
-            $bankDetails = $user->bankAccount()->updateOrCreate(
+            $bankDetails = $user->bankaccount()->updateOrCreate(
                 ['user_id' => $user->id],
                 [
                     'account_number' => $validated['account_number'],
@@ -57,12 +57,12 @@ class bankaccountController extends Controller
                     'is_verified' => true,
                 ]
             );
-    
+
             return response()->json([
                 'message' => 'Bank account details saved successfully.',
                 'bank_account' => $bankDetails,
             ], 200);
-    
+
         } catch (\Throwable $e) {
             Log::error('Bank account saving failed: ' . $e->getMessage());
             return response()->json([
@@ -71,8 +71,8 @@ class bankaccountController extends Controller
             ], 500);
         }
     }
-    
-    public function getbankaccount(Request $request){
+
+    public function getBankAccount(Request $request){
         $user = $request->user();
         $bankAccount = $user->bankaccount()->first();
         if (!$bankAccount) {
@@ -89,7 +89,7 @@ class bankaccountController extends Controller
         $paystack = new \Yabacon\Paystack(env('PAYSTACK_SECRET_KEY'));
         $response = $paystack->bank->list();
         // dd($response);
-        
+
         return response()->json([
             'message' => 'Banks retrieved successfully',
             'banks' => $response,

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\challenge;
-use App\Models\challengeEntry;
+use App\Models\Challenge;
+use App\Models\ChallengeEntry;
 use App\Models\Post;
 use App\Models\PostMedia;
 use Illuminate\Http\Request;
@@ -18,7 +18,7 @@ class postController extends Controller
     $currentWeek = now()->weekOfYear;
     $year = now()->year;
 
-    $challenge = challenge::where('week_number', $currentWeek)
+    $challenge = \App\Models\Challenge::where('week_number', $currentWeek)
                           ->where('year', $year)
                           ->first();
 
@@ -34,7 +34,7 @@ class postController extends Controller
         ], 403);
     }
 
-    $entry = challengeEntry::where('user_id', $user->id)
+    $entry = \App\Models\ChallengeEntry::where('user_id', $user->id)
                            ->where('challenge_id', $challenge->id)
                            ->first();
 
@@ -50,10 +50,11 @@ class postController extends Controller
         ], 403);
     }
 
-        Try {
+        try {
             $request->validate([
                 'caption' => 'nullable|string',
                 'post_type' => 'required|in:image,video,mixed',
+                'media' => 'required|array|min:1',
                 'media.*' => 'required|file|mimes:jpg,jpeg,png,mp4,mov|max:51200',
                 'music' => 'nullable|file|mimes:mp3,wav|max:10240',
             ]);
@@ -119,7 +120,7 @@ class postController extends Controller
             $currentWeek = now()->weekOfYear;
         $year = now()->year;
 
-        $challenge = challenge::where('week_number', $currentWeek)
+    $challenge = \App\Models\Challenge::where('week_number', $currentWeek)
                             ->where('year', $year)
                             ->first();
 
@@ -129,7 +130,7 @@ class postController extends Controller
             ])->setStatusCode(404,'No active challenge this week');
         }
 
-        $entry = challengeEntry::where('user_id', $user->id)
+    $entry = \App\Models\ChallengeEntry::where('user_id', $user->id)
                             ->where('challenge_id', $challenge->id)
                             ->first();
 
