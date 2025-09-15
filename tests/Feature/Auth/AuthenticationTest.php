@@ -1,8 +1,8 @@
 <?php
+namespace Tests\Feature\Auth;
+
 // Skipped: This project uses API (Sanctum) auth, not web session auth
 if (true) { return; }
-
-namespace Tests\Feature\Auth;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;

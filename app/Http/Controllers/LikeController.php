@@ -50,8 +50,8 @@ class LikeController extends Controller
         }
 
         // Update the likes count on the post
-       
-      
+
+
         $post->likes_count = $post->likes()->where('is_liked', true)->count();
         $post->save();
 
@@ -60,7 +60,7 @@ class LikeController extends Controller
             'likes_count' => $post->likes_count,
         ]);
     }
-  
+
     // public function unlikePost(Request $request, $postId)
     // {
     //     $user = $request->user();
@@ -96,6 +96,7 @@ class LikeController extends Controller
     //         'likes' => $likes,
     //     ]);
     // }
+
     public function userthatlikepost(Request $request, $postId)
     {
         $user = $request->user();

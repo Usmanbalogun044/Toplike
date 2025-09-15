@@ -58,14 +58,14 @@ class postController extends Controller
                 'media.*' => 'required|file|mimes:jpg,jpeg,png,mp4,mov|max:51200',
                 'music' => 'nullable|file|mimes:mp3,wav|max:10240',
             ]);
-    
+
             $post = new Post();
             $post->user_id = $request->user()->id;
             $post->caption = $request->input('caption');
             $post->type = $request->input('post_type');
             $post->music = $request->file('music') ? $request->file('music')->store('music', 'public') : null;
             $post->save();
-    
+
             $media = [];
             foreach ($request->file('media') as $file) {
 
@@ -78,19 +78,19 @@ class postController extends Controller
                     'file_path' => $upload['secure_url'],
                 ]);
             }
-    
+
             $post->media()->saveMany($media);
             $entry->has_posted = true;
             $entry->save();
-    
+
             return response()->json([
                 'message' => 'Post created successfully',
                 'post' => $post->load('media'),
             ], 201);
-    
+
         } catch (\Throwable $e) {
             Log::error('Post creation failed: ' . $e->getMessage());
-    
+
             return response()->json([
                 'message' => 'Failed to create post.',
                 'error' => $e->getMessage(),
@@ -100,19 +100,19 @@ class postController extends Controller
         public function getPosts()
         {
             $posts = Post::with(['media', 'user'])->where('is_visible', true)->latest()->paginate(10);
-    
+
             return response()->json($posts);
         }
         public function getPost($id)
         {
             $post = Post::with(['media', 'user'])->findOrFail($id);
-    
+
             return response()->json($post);
         }
         public function getUserPosts($id)
         {
             $posts = Post::with(['media', 'user'])->where('user_id', $id)->where('is_visible', true)->latest()->paginate(10);
-    
+
             return response()->json($posts);
         }
         public function checkifuserhasposted(Request $request){

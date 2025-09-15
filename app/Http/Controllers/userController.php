@@ -26,15 +26,14 @@ class userController extends Controller
 
         if ($request->hasFile('profilepix')) {
             if ($user->image_public_id) {
-              Cloudinary::uploadApi()->destroy($user->image_public_id);
-             
+                Cloudinary::uploadApi()->destroy($user->image_public_id);
             }
-    
+
             // Upload new image
             $upload = Cloudinary::uploadApi()->upload($request->file('profilepix')->getRealPath(), [
                 'folder' => 'profile_picture',
             ]);
-    
+
             $user->profile_picture = $upload['secure_url'];
             $user->image_public_id = $upload['public_id'];
         }

@@ -24,8 +24,9 @@ class weelychallengeleaderboardController extends Controller
                 'message' => 'This week\'s challenge has already been completed.',
             ], 403);
         }
-        //top 100 leaderboard toplike post for the week
-        $topPosts = $challenge->posts()
+        // Top 100 leaderboard TopLike posts within the challenge period
+        $topPosts = \App\Models\Post::whereBetween('created_at', [$challenge->starts_at, $challenge->ends_at])
+            ->where('is_visible', true)
             ->withCount('likes')
             ->orderBy('likes_count', 'desc')
             ->take(100)
