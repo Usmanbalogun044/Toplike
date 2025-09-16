@@ -59,7 +59,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     ])->setStatusCode(200, 'Banks retrieved successfully');
 });
 Route::middleware(['api','auth.user','verified'])->group(function () {
-    Route::post('/user/update', 'App\\Http\\Controllers\\userController@updateProfile');
+    // Route::post('/user/update', 'App\\Http\\Controllers\\userController@updateProfile');
     // RESTful alias
     Route::patch('/user', 'App\\Http\\Controllers\\userController@updateProfile');
     Route::get('/myprofile', 'App\\Http\\Controllers\\userController@me');
