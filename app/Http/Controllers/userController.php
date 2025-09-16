@@ -15,8 +15,7 @@ class userController extends Controller
 {
     public function updateProfile(Request $request)
     {
-        $user = $request->user();
-
+        $user =auth()->user();
         $request->validate([
             'username' => ['nullable', 'string', 'max:255', Rule::unique('users')->ignore($user->id)],
             'bio' => 'nullable|string|max:1000',
