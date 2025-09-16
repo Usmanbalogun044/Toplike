@@ -3,20 +3,22 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
+
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Auth;
+
 
 class userController extends Controller
 {
-
         public function updateProfile(Request $request)
         {
-            $user= Auth::user();
+            $user = $request->user();
             if (!$user) {
                 return response()->json(['message' => 'Unauthenticated'], 401);
             }
@@ -26,7 +28,6 @@ class userController extends Controller
                 'bio' => ['sometimes', 'string', 'max:500'],
                 'profilepix' => ['sometimes', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
             ]);
-      
 
             if ($validator->fails()) {
                 return response()->json([
@@ -35,40 +36,34 @@ class userController extends Controller
                 ], 422);
             }
 
-
-            $validated = $validator->validated();
-
-            $data = [];
-
-            if ($request->hasFile('profilepix')) {
-                try {
-                    if (!empty($user->image_public_id)) {
-                        Cloudinary::destroy($user->image_public_id);
-                    }
-
-                    $upload = Cloudinary::uploadFile(
-                        $request->file('profilepix')->getRealPath(),
-                        ['folder' => 'profile_picture', 'resource_type' => 'image']
-                    );
-
-                    $data['profile_picture'] = $upload->getSecurePath();
-                    $data['image_public_id'] = $upload->getPublicId();
-                } catch (\Throwable $e) {
-                    Log::error('Cloudinary upload failed', ['error' => $e->getMessage()]);
-                    return response()->json([
-                        'message' => 'Image upload failed, please try again later.'
-                    ], 500);
-                }
+         $data = [];
+         try {
+            
+        if ($request->hasFile('profilepix')) {
+            if ($user->image_public_id) {
+            Cloudinary::uploadApi()->destroy($user->image_public_id);
             }
+            $upload = Cloudinary::uploadApi()->upload($request->file('profilepix')->getRealPath(), [
+            'folder' => 'profile_picture',
+            ]);
+            $data['profile_picture'] = $upload['secure_url'];
+            $data['image_public_id'] = $upload['public_id'];
+        }
 
-            if (array_key_exists('username', $validated)) {
-                $data['username'] = $validated['username'];
-            }
-            if (array_key_exists('bio', $validated)) {
-                $data['bio'] = $validated['bio'];
-            }
+        if ($request->filled('username')) {
+            $data['username'] = $request->input('username');
+        }
+        if ($request->filled('bio')) {
+            $data['bio'] = $request->input('bio');
+        }
+         }
+         catch (\Exception $e) {
+            Log::error('Profile update error: ' . $e->getMessage());
+            return response()->json(['message' => 'An error occurred while updating the profile.'], 500);
+         }
 
-            $user->update($data);
+
+        $user->update($data);
 
             return response()->json([
                 'message' => 'Profile updated successfully',
