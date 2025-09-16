@@ -3,52 +3,79 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
-
-
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 
 class userController extends Controller
 {
-    public function updateProfile(Request $request)
-    {
-        $user =auth()->user();
-        $request->validate([
-            'username' => ['nullable', 'string', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'bio' => 'nullable|string|max:1000',
-            'profilepix' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-        ]);
 
-        $data = [];
-
-        if ($request->hasFile('profilepix')) {
-            if ($user->image_public_id) {
-            Cloudinary::uploadApi()->destroy($user->image_public_id);
+        public function updateProfile(Request $request)
+        {
+            $user= Auth::user();
+            if (!$user) {
+                return response()->json(['message' => 'Unauthenticated'], 401);
             }
-            $upload = Cloudinary::uploadApi()->upload($request->file('profilepix')->getRealPath(), [
-            'folder' => 'profile_picture',
+
+            $validator = Validator::make($request->all(), [
+                'username' => ['sometimes', 'string', 'max:255', Rule::unique('users', 'username')->ignore($user->id)],
+                'bio' => ['sometimes', 'string', 'max:500'],
+                'profilepix' => ['sometimes', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
             ]);
-            $data['profile_picture'] = $upload['secure_url'];
-            $data['image_public_id'] = $upload['public_id'];
+      
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
+
+
+            $validated = $validator->validated();
+
+            $data = [];
+
+            if ($request->hasFile('profilepix')) {
+                try {
+                    if (!empty($user->image_public_id)) {
+                        Cloudinary::destroy($user->image_public_id);
+                    }
+
+                    $upload = Cloudinary::uploadFile(
+                        $request->file('profilepix')->getRealPath(),
+                        ['folder' => 'profile_picture', 'resource_type' => 'image']
+                    );
+
+                    $data['profile_picture'] = $upload->getSecurePath();
+                    $data['image_public_id'] = $upload->getPublicId();
+                } catch (\Throwable $e) {
+                    Log::error('Cloudinary upload failed', ['error' => $e->getMessage()]);
+                    return response()->json([
+                        'message' => 'Image upload failed, please try again later.'
+                    ], 500);
+                }
+            }
+
+            if (array_key_exists('username', $validated)) {
+                $data['username'] = $validated['username'];
+            }
+            if (array_key_exists('bio', $validated)) {
+                $data['bio'] = $validated['bio'];
+            }
+
+            $user->update($data);
+
+            return response()->json([
+                'message' => 'Profile updated successfully',
+                'user' => $user->fresh(),
+            ]);
         }
 
-        if ($request->filled('username')) {
-            $data['username'] = $request->input('username');
-        }
-        if ($request->filled('bio')) {
-            $data['bio'] = $request->input('bio');
-        }
-
-        $user->update($data);
-
-        return response()->json([
-            'message' => 'Profile updated successfully',
-            'user' => $user,
-        ]);
-    }
     public function me(Request $request)
     {
         $user = $request->user();

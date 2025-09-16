@@ -18,6 +18,7 @@ use App\Http\Controllers\weelychallengeleaderboardController;
 use App\Http\Controllers\withdrawController;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
+use App\Http\Controllers\userController;
 
 
 Route::controller(Authcontroller::class)->group(function(){
@@ -59,7 +60,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     ])->setStatusCode(200, 'Banks retrieved successfully');
 });
 Route::middleware(['api','auth.user','verified'])->group(function () {
-    Route::patch('/user', 'App\\Http\\Controllers\\userController@updateProfile');
+    Route::patch('/user',[userController::class, 'updateProfile']);
     Route::get('/myprofile', 'App\\Http\\Controllers\\userController@me');
     Route::get('/user/profile/{id}', 'App\\Http\\Controllers\\userController@otheruserprofile');
 
