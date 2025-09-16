@@ -18,6 +18,7 @@ class WalletController extends Controller
            'wallet'=>$wallet
         ])->setStatusCode(200,'Wallet retrieved successfully');
     }
+
     //wallet transactions in json
     public function walletTransactions( Request $request){
         $user = $request->user();
@@ -26,5 +27,5 @@ class WalletController extends Controller
         return response()->json([
            'transacton'=>  $transactions,
         ])->setStatusCode(200,'Wallet transactions retrieved successfully');
-    }   
+    }
 }

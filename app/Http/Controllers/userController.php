@@ -18,30 +18,32 @@ class userController extends Controller
         $user = $request->user();
 
         $request->validate([
-            'name' => 'nullable|string|max:255',
             'username' => ['nullable', 'string', 'max:255', Rule::unique('users')->ignore($user->id)],
             'bio' => 'nullable|string|max:1000',
             'profilepix' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
+        $data = [];
+
         if ($request->hasFile('profilepix')) {
             if ($user->image_public_id) {
-                Cloudinary::uploadApi()->destroy($user->image_public_id);
+            Cloudinary::uploadApi()->destroy($user->image_public_id);
             }
-
-            // Upload new image
             $upload = Cloudinary::uploadApi()->upload($request->file('profilepix')->getRealPath(), [
-                'folder' => 'profile_picture',
+            'folder' => 'profile_picture',
             ]);
-
-            $user->profile_picture = $upload['secure_url'];
-            $user->image_public_id = $upload['public_id'];
+            $data['profile_picture'] = $upload['secure_url'];
+            $data['image_public_id'] = $upload['public_id'];
         }
 
-        $user->name = $request->input('name', $user->name);
-        $user->username = $request->input('username', $user->username);
-        $user->bio = $request->input('bio', $user->bio);
-        $user->save();
+        if ($request->filled('username')) {
+            $data['username'] = $request->input('username');
+        }
+        if ($request->filled('bio')) {
+            $data['bio'] = $request->input('bio');
+        }
+
+        $user->update($data);
 
         return response()->json([
             'message' => 'Profile updated successfully',
@@ -57,7 +59,7 @@ class userController extends Controller
             'posts' => $user->posts()->with(['media', 'likes'])->latest()->paginate(10),
         ])->setStatusCode(200, 'User profile retrieved successfully');
     }
-      
+
     /**
      * Get other user's profile
      *
@@ -79,5 +81,5 @@ class userController extends Controller
             'posts' => $user->posts()->with(['media', 'likes'])->latest()->paginate(10),
         ])->setStatusCode(200, 'User profile retrieved successfully');
     }
-  
+
 }

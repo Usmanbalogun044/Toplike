@@ -83,13 +83,13 @@ class bankaccountController extends Controller
             'bank_account' => $bankAccount,
         ])->setStatusCode(200, 'Bank account details retrieved successfully');
     }
+
     public function Listnigerianigerianbanks(Request $request){
         $user = $request->user();
         //paystack api to list bank
         $paystack = new \Yabacon\Paystack(env('PAYSTACK_SECRET_KEY'));
         $response = $paystack->bank->list();
         // dd($response);
-
         return response()->json([
             'message' => 'Banks retrieved successfully',
             'banks' => $response,

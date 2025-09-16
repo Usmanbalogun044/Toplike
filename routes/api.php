@@ -59,9 +59,11 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     ])->setStatusCode(200, 'Banks retrieved successfully');
 });
 Route::middleware(['api','auth.user','verified'])->group(function () {
-    Route::post('/user/update', 'App\Http\Controllers\userController@updateProfile');
-    Route::get('/myprofile', 'App\Http\Controllers\userController@me');
-    Route::get('/user/profile/{id}', 'App\Http\Controllers\userController@otheruserprofile');
+    Route::post('/user/update', 'App\\Http\\Controllers\\userController@updateProfile');
+    // RESTful alias
+    Route::patch('/user', 'App\\Http\\Controllers\\userController@updateProfile');
+    Route::get('/myprofile', 'App\\Http\\Controllers\\userController@me');
+    Route::get('/user/profile/{id}', 'App\\Http\\Controllers\\userController@otheruserprofile');
 
     Route::controller(postController::class)->group(function(){
         Route::get('/post/all', 'getPosts');
@@ -69,10 +71,18 @@ Route::middleware(['api','auth.user','verified'])->group(function () {
         Route::get('/post/{id}', 'getPost');
         Route::get('/has-user-post','checkifuserhasposted');
         Route::get('/post/user/{id}', 'getUserPosts');
+        // RESTful aliases
+        Route::get('/posts', 'getPosts');
+        Route::post('/posts', 'createPost');
+        Route::get('/posts/{id}', 'getPost');
+        Route::get('/users/{id}/posts', 'getUserPosts');
     });
     Route::controller(LikeController::class)->group(function(){
         Route::post('/like-post/{postId}','likePost');
         Route::get('/like/list-user/{postId}', 'userthatlikepost');
+        // RESTful aliases
+        Route::post('/posts/{postId}/likes','likePost');
+        Route::get('/posts/{postId}/likes', 'userthatlikepost');
     });
 
     Route::controller(challengeController::class)->group(function(){
@@ -88,6 +98,7 @@ Route::middleware(['api','auth.user','verified'])->group(function () {
     });
     Route::controller(bankaccountController::class)->group(function(){
         Route::post('/bankaccount/create', 'updateOrCreateBankAccount');
+        Route::put('/bankaccount', 'updateOrCreateBankAccount');
         Route::get('/bankaccount', 'getBankAccount');
         Route::get('/banks/list', 'Listnigerianigerianbanks');
     });
@@ -100,6 +111,10 @@ Route::middleware(['api','auth.user','verified'])->group(function () {
         Route::get('/notifications/mark-as-read', 'markAsRead');
         Route::get('/notifications/mark-as-read/{id}', 'markAsReadById');
         Route::delete('/notifications/delete/{id}', 'deleteNotification');
+        // RESTful aliases for state changes
+        Route::post('/notifications/mark-as-read', 'markAsRead');
+        Route::post('/notifications/{id}/mark-as-read', 'markAsReadById');
+        Route::delete('/notifications/{id}', 'deleteNotification');
 
     });
 
