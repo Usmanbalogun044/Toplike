@@ -73,15 +73,23 @@ class bankaccountController extends Controller
     }
 
     public function getBankAccount(Request $request){
-        $user = $request->user();
-        $bankAccount = $user->bankaccount()->first();
-        if (!$bankAccount) {
-            return response()->json(['message' => 'No bank account found'], 404);
+        try {
+            $user = $request->user();
+            $bankAccount = $user->bankaccount()->first();
+            if (!$bankAccount) {
+                return response()->json(['message' => 'No bank account found'], 404);
+            }
+            return response()->json([
+                'message' => 'Bank account details retrieved successfully',
+                'bank_account' => $bankAccount,
+            ], 200);
+        } catch (\Throwable $e) {
+            \Log::error('Bank account retrieval failed: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'An error occurred while retrieving bank account details',
+                'error' => $e->getMessage(),
+            ], 500);
         }
-        return response()->json([
-            'message' => 'Bank account details retrieved successfully',
-            'bank_account' => $bankAccount,
-        ])->setStatusCode(200, 'Bank account details retrieved successfully');
     }
 
     public function Listnigerianigerianbanks(Request $request){
