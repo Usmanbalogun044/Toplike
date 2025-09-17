@@ -101,6 +101,7 @@ Route::middleware(['api','auth.user','verified'])->group(function () {
         Route::get('/bankaccount', 'getBankAccount');
         Route::get('/banks/list', 'Listnigerianigerianbanks');
     });
+    
     Route::controller(withdrawController::class)->group(function(){
         Route::post('/withdraw', 'withdraw');
         Route::get('/withdraw/history', 'withdrawHistory');
