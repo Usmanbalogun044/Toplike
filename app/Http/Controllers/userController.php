@@ -26,7 +26,7 @@ class userController extends Controller
             $validator = Validator::make($request->all(), [
                 'username' => ['sometimes', 'string', 'max:255', Rule::unique('users', 'username')->ignore($user->id)],
                 'bio' => ['sometimes', 'string', 'max:500'],
-                'profilepix' => ['sometimes', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
+                'profile_picture' => ['sometimes', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
             ]);
 
             if ($validator->fails()) {
@@ -39,11 +39,11 @@ class userController extends Controller
          $data = [];
          try {
             
-        if ($request->hasFile('profilepix')) {
+        if ($request->hasFile('profile_picture')) {
             if ($user->image_public_id) {
             Cloudinary::uploadApi()->destroy($user->image_public_id);
             }
-            $upload = Cloudinary::uploadApi()->upload($request->file('profilepix')->getRealPath(), [
+            $upload = Cloudinary::uploadApi()->upload($request->file('profile_picture')->getRealPath(), [
             'folder' => 'profile_picture',
             ]);
             $data['profile_picture'] = $upload['secure_url'];
