@@ -19,6 +19,7 @@ use App\Http\Controllers\withdrawController;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use App\Http\Controllers\userController;
+use App\Http\Controllers\BankController;
 
 
 Route::controller(Authcontroller::class)->group(function(){
@@ -98,10 +99,10 @@ Route::middleware(['api','auth.user','verified'])->group(function () {
     Route::controller(bankaccountController::class)->group(function(){
         Route::post('/bankaccount/create', 'updateOrCreateBankAccount');
         Route::put('/bankaccount', 'updateOrCreateBankAccount');
-        Route::get('/bankaccount', 'getBankAccount');
+        // Route::get('/bankaccount', 'getBankAccount');
         Route::get('/banks/list', 'Listnigerianigerianbanks');
     });
-    
+    Route::get('/bankdetails',[BankController::class, 'getbankdetails']);
     Route::controller(withdrawController::class)->group(function(){
         Route::post('/withdraw', 'withdraw');
         Route::get('/withdraw/history', 'withdrawHistory');
