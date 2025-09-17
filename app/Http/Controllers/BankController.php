@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\bankaccount;
+use App\Models\BankAccount;
 
 class BankController extends Controller
 {
@@ -46,10 +46,9 @@ class BankController extends Controller
             ], 500);
         }
     }
-    
     public function allbanks(){
 
-        $allbanks= bankaccount::all();
+        $allbanks= BankAccount::all();
         return response()->json([
             'message'=>'received',
             'bank'=>$allbanks
