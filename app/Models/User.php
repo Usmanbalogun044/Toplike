@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\BankAccount;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -104,8 +105,8 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(ChallengeEntry::class);
     }
-    public function bankaccount()
+    public function bank()
     {
-        return $this->hasOne(BankAccount::class);
+        return $this->hasOne(Bank::class);
     }
 }

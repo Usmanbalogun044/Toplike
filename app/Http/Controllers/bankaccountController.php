@@ -47,7 +47,7 @@ class bankaccountController extends Controller
             $accountName = $resolve->data->account_name;
 
             // Save or update bank record
-            $bankDetails = $user->bankaccount()->updateOrCreate(
+            $bankDetails = $user->bank()->updateOrCreate(
                 ['user_id' => $user->id],
                 [
                     'account_number' => $validated['account_number'],
@@ -75,7 +75,7 @@ class bankaccountController extends Controller
     public function getBankAccount(Request $request){
         try {
             $user = $request->user();
-            $bankAccount = $user->bankaccount()->first();
+            $bankAccount = $user->bank()->first();
             if (!$bankAccount) {
                 return response()->json(['message' => 'No bank account found'], 404);
             }

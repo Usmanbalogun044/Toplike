@@ -99,7 +99,7 @@ Route::middleware(['api','auth.user','verified'])->group(function () {
     Route::controller(bankaccountController::class)->group(function(){
         Route::post('/bankaccount/create', 'updateOrCreateBankAccount');
         Route::put('/bankaccount', 'updateOrCreateBankAccount');
-        // Route::get('/bankaccount', 'getBankAccount');
+        Route::get('/bankaccount', 'getBankAccount');
         Route::get('/banks/list', 'Listnigerianigerianbanks');
     });
     Route::get('/allbanks',[BankController::class, 'allbanks']);

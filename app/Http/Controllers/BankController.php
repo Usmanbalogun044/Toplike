@@ -3,52 +3,33 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\BankAccount;
+use App\Models\Bank;
 
 class BankController extends Controller
 {
     public function getbankdetails(Request $request)
     {
-        try {
+       try {
             $user = $request->user();
-
-            if (!$user) {
-                return response()->json(['message' => 'Unauthorized'], 401);
-            }
-
-            $bankAccount = $user->bankaccount()->first();
-
+            $bankAccount = $user->bank()->first();
             if (!$bankAccount) {
                 return response()->json(['message' => 'No bank account found'], 404);
             }
-
             return response()->json([
                 'message' => 'Bank account details retrieved successfully',
                 'bank_account' => $bankAccount,
             ], 200);
         } catch (\Throwable $e) {
-            $errorId = (string) \Illuminate\Support\Str::uuid();
-
-            \Illuminate\Support\Facades\Log::channel('errorlog')->error('Bank account retrieval failed', [
-                'error_id' => $errorId,
-                'user_id' => optional(auth()->user())->id,
-                'message' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString(),
-            ]);
-
-            report($e);
-
+            \Log::error('Bank account retrieval failed: ' . $e->getMessage());
             return response()->json([
                 'message' => 'An error occurred while retrieving bank account details',
-                'error_id' => $errorId,
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
     public function allbanks(){
 
-        $allbanks= BankAccount::all();
+        $allbanks= Bank::all();
         return response()->json([
             'message'=>'received',
             'bank'=>$allbanks
