@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class BankAccount extends Model
+class bankaccount extends Model
 {
     protected $fillable = [
         'user_id',
