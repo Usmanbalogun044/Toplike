@@ -23,25 +23,11 @@ class userController extends Controller
                 return response()->json(['message' => 'Unauthenticated'], 401);
             }
 
-        $validator = Validator::make($request->all(), [
-            'username' => [
-                'nullable',
-                'string',
-                'max:255',
-                Rule::unique('users', 'username')->ignore($user->id),
-            ],
-            'bio' => [
-                'nullable',
-                'string',
-                'max:500',
-            ],
-            'profile_picture' => [
-                'nullable',
-                'image',
-                'mimes:jpeg,png,jpg,gif,svg',
-                'max:2048',
-            ],
-        ]);
+      $validator = Validator::make($request->all(), [
+    'username' => 'nullable|string|max:255|unique:users,username,' . $user->id,
+    'bio' => 'nullable|string|max:500',
+    'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+    ]);
 
         if ($validator->fails()) {
             return response()->json([
