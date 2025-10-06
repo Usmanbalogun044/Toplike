@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Challenge;
+
 use App\Models\ChallengeEntry;
 use App\Models\Post;
 use App\Models\PostMedia;
@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Challenge;
 
 class postController extends Controller
 {
