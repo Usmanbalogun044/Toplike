@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Like;
 use App\Models\Post;
 use Illuminate\Http\Request;
-
+use App\Notifications\PostLiked;
 class LikeController extends Controller
 {
     public function likePost(Request $request, $postId)
@@ -25,12 +25,12 @@ class LikeController extends Controller
             if ($like->is_liked) {
                 // Send notification only if liked
                 if ($post->user_id !== $user->id) {
-                    $post->user->notify(new \App\Notifications\PostLiked($user, $post));
+                    $post->user->notify(new PostLiked($user, $post));
                 }
             } else {
                 if ($post->user_id !== $user->id) {
                     $post->user->notifications()
-                        ->where('type', \App\Notifications\PostLiked::class)
+                        ->where('type', PostLiked::class)
                         ->where('data->user_id', $user->id)
                         ->where('data->post_id', $post->id)
                         ->delete();
@@ -45,7 +45,7 @@ class LikeController extends Controller
             ]);
 
             if ($post->user_id !== $user->id) {
-                $post->user->notify(new \App\Notifications\PostLiked($user, $post));
+                $post->user->notify(new PostLiked($user, $post));
             }
         }
 
@@ -100,13 +100,10 @@ class LikeController extends Controller
     public function userthatlikepost(Request $request, $postId)
     {
         $user = $request->user();
-
         // Check if the post exists
         $post = Post::findOrFail($postId);
-
         // Get the users who liked the post
         $likes = $post->likes()->with('user')->get();
-
         return response()->json([
             'likes' => $likes,
         ]);

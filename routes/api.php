@@ -62,8 +62,8 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 });
 Route::middleware(['api','auth.user','verified'])->group(function () {
     Route::post('/user',[userController::class, 'updateProfile']);
-    Route::get('/myprofile', 'App\\Http\\Controllers\\userController@me');
-    Route::get('/user/profile/{id}', 'App\\Http\\Controllers\\userController@otheruserprofile');
+    Route::get('/myprofile',[userController::class, 'me']);
+    Route::get('/user/profile/{id}', [userController::class,'otheruserprofile']);
 
     Route::controller(postController::class)->group(function(){
         Route::get('/post/all', 'getPosts');

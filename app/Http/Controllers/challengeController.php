@@ -37,7 +37,7 @@ class challengeController extends Controller
 
         WalletTransaction::create([
             'user_id' => $user->id,
-            'amount' => $challenge->entry_fee,
+            'amount' => $challenge->entry_fee ?? 500,
             'type' => 'debit',
             'description' => 'Challenge Entry Fee',
         ]);

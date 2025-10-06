@@ -18,7 +18,7 @@ class postController extends Controller
     $currentWeek = now()->weekOfYear;
     $year = now()->year;
 
-    $challenge = \App\Models\Challenge::where('week_number', $currentWeek)
+    $challenge = Challenge::where('week_number', $currentWeek)
                           ->where('year', $year)
                           ->first();
 
@@ -34,7 +34,7 @@ class postController extends Controller
         ], 403);
     }
 
-    $entry = \App\Models\ChallengeEntry::where('user_id', $user->id)
+    $entry = ChallengeEntry::where('user_id', $user->id)
                            ->where('challenge_id', $challenge->id)
                            ->first();
 
@@ -120,7 +120,7 @@ class postController extends Controller
             $currentWeek = now()->weekOfYear;
         $year = now()->year;
 
-    $challenge = \App\Models\Challenge::where('week_number', $currentWeek)
+    $challenge = Challenge::where('week_number', $currentWeek)
                             ->where('year', $year)
                             ->first();
 
@@ -130,7 +130,7 @@ class postController extends Controller
             ])->setStatusCode(404,'No active challenge this week');
         }
 
-    $entry = \App\Models\ChallengeEntry::where('user_id', $user->id)
+    $entry = ChallengeEntry::where('user_id', $user->id)
                             ->where('challenge_id', $challenge->id)
                             ->first();
 
