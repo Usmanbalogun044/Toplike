@@ -9,12 +9,13 @@ use App\Models\PostMedia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
+use Illuminate\Support\Facades\Auth;
 
 class postController extends Controller
 {
     public function createPost(Request $request)
     {
-     $user = $request->user();
+     $user = Auth::user();
     $currentWeek = now()->weekOfYear;
     $year = now()->year;
 

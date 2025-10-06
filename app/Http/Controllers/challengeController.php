@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+
 use App\Models\Challenge;
 use App\Models\ChallengeEntry;
 use App\Models\User;
@@ -9,9 +10,9 @@ use App\Models\WalletTransaction;
 use Illuminate\Http\Request;
 use Yabacon\Paystack;
 
-class challengeController extends Controller
+class ChallengeController extends Controller
 {
-    public function joinChallenge(Request $request)
+      public function joinChallenge(Request $request)
 {
     $user = $request->user();
     $currentWeek = now()->weekOfYear;

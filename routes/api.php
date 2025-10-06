@@ -10,7 +10,6 @@ use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Notification;
-use App\Http\Controllers\challengeController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\paymentController;
 use App\Http\Controllers\WalletController;
@@ -20,7 +19,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use App\Http\Controllers\userController;
 use App\Http\Controllers\BankController;
-
+use App\Http\Controllers\ChallengeController;
 
 Route::controller(Authcontroller::class)->group(function(){
     Route::post('/signup','register');
@@ -85,7 +84,7 @@ Route::middleware(['api','auth.user','verified'])->group(function () {
         Route::get('/posts/{postId}/likes', 'userthatlikepost');
     });
 
-    Route::controller(challengeController::class)->group(function(){
+    Route::controller(ChallengeController::class)->group(function(){
         Route::post('/join/challenge', 'joinChallenge');
         Route::get('/paystack/callback', 'callback')->name('payment.callback');
     });
