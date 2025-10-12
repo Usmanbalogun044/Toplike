@@ -84,7 +84,7 @@ class bankaccountController extends Controller
                 'bank_account' => $bankAccount,
             ], 200);
         } catch (\Throwable $e) {
-            Log::error('Bank account retrieval failed: ' . $e->getMessage());
+            \Log::error('Bank account retrieval failed: ' . $e->getMessage());
             return response()->json([
                 'message' => 'An error occurred while retrieving bank account details',
                 'error' => $e->getMessage(),

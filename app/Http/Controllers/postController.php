@@ -14,13 +14,23 @@ use App\Models\Challenge;
 
 class postController extends Controller
 {
+    /**
+     * Create a new post.
+     *
+     * Handles the creation of a new post, including validation of input data,
+     * processing of media uploads, and association with the authenticated user.
+     * Returns a response or JSON payload indicating success or failure.
+     *
+     * @param \Illuminate\Http\Request $request The incoming request containing post data.
+     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
+     */
     public function createPost(Request $request)
     {
      $user = Auth::user();
     $currentWeek = now()->weekOfYear;
     $year = now()->year;
 
-    $challenge = Challenge::where('week_number', $currentWeek)
+    $challenge = \App\Models\Challenge::where('week_number', $currentWeek)
                           ->where('year', $year)
                           ->first();
 
@@ -36,7 +46,7 @@ class postController extends Controller
         ], 403);
     }
 
-    $entry = ChallengeEntry::where('user_id', $user->id)
+    $entry = \App\Models\ChallengeEntry::where('user_id', $user->id)
                            ->where('challenge_id', $challenge->id)
                            ->first();
 
@@ -99,6 +109,20 @@ class postController extends Controller
             ], 500);
         }
     }
+    /**
+     * Get a single post by its identifier.
+     *
+     * Retrieves the specified post from storage. May optionally include related
+     * resources (e.g., author, comments) based on request parameters. Returns
+     * a response or JSON payload with the post data. If the post does not exist,
+     * a 404 response may be returned or a ModelNotFoundException thrown.
+     *
+     * @param int|string $id The unique identifier of the post to retrieve.
+     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse|\Illuminate\View\View
+     *
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException If the post cannot be found.
+     */
+    /
         public function getPosts()
         {
             $posts = Post::with(['media', 'user'])->where('is_visible', true)->latest()->paginate(10);
@@ -120,9 +144,7 @@ class postController extends Controller
         public function checkifuserhasposted(Request $request){
             $user = $request->user();
             $currentWeek = now()->weekOfYear;
-        $year = now()->year;
-
-    $challenge = Challenge::where('week_number', $currentWeek)
+        $year = now()->Challenge  $challenge = \App\Models\Challenge::where('week_number', $currentWeek)
                             ->where('year', $year)
                             ->first();
 
@@ -132,7 +154,7 @@ class postController extends Controller
             ])->setStatusCode(404,'No active challenge this week');
         }
 
-    $entry = ChallengeEntry::where('user_id', $user->id)
+    $entry = \App\Models\ChallengeEntry::where('user_id', $user->id)
                             ->where('challenge_id', $challenge->id)
                             ->first();
 
