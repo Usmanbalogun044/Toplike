@@ -65,15 +65,10 @@ Route::middleware(['api','auth.user','verified'])->group(function () {
     Route::get('/user/profile/{id}', [userController::class,'otheruserprofile']);
 
     Route::controller(postController::class)->group(function(){
-        Route::get('/post/all', 'getPosts');
         Route::post('/post/create', 'createPost');
         Route::get('/post/{id}', 'getPost');
         Route::get('/has-user-post','checkifuserhasposted');
-        Route::get('/post/user/{id}', 'getUserPosts');
-        // RESTful aliases
         Route::get('/posts', 'getPosts');
-        Route::post('/posts', 'createPost');
-        Route::get('/posts/{id}', 'getPost');
         Route::get('/users/{id}/posts', 'getUserPosts');
     });
     Route::controller(LikeController::class)->group(function(){

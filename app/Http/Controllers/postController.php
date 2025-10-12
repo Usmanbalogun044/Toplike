@@ -122,31 +122,38 @@ class postController extends Controller
      *
      * @throws \Illuminate\Database\Eloquent\ModelNotFoundException If the post cannot be found.
      */
-    /
         public function getPosts()
         {
             $posts = Post::with(['media', 'user'])->where('is_visible', true)->latest()->paginate(10);
 
             return response()->json($posts);
         }
+       /** 
+        * Get Post by ID and the user that post it 
+       */
         public function getPost($id)
         {
             $post = Post::with(['media', 'user'])->findOrFail($id);
 
             return response()->json($post);
         }
+        /**
+         * Get a particular users all post using Userid
+         */
         public function getUserPosts($id)
         {
             $posts = Post::with(['media', 'user'])->where('user_id', $id)->where('is_visible', true)->latest()->paginate(10);
 
             return response()->json($posts);
         }
+
         public function checkifuserhasposted(Request $request){
             $user = $request->user();
-            $currentWeek = now()->weekOfYear;
-        $year = now()->Challenge  $challenge = \App\Models\Challenge::where('week_number', $currentWeek)
-                            ->where('year', $year)
-                            ->first();
+        $currentWeek = now()->weekOfYear;
+        $year = now()->year;
+        $challenge = \App\Models\Challenge::where('week_number', $currentWeek)
+                        ->where('year', $year)
+                        ->first();
 
         if (!$challenge) {
             return response()->json([
