@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Yabacon\Paystack;
+use Illuminate\Support\Facades\Auth;
 
 class withdrawController extends Controller
 {
@@ -28,7 +29,7 @@ class withdrawController extends Controller
             $recipientCode = $response->json('data.recipient_code');
     
             // Save recipient code to user bank account
-            $accountDetails = auth()->user()->bankaccount;
+            $accountDetails =  Auth::user()->bankaccount;
             $accountDetails->recipient_code = $recipientCode;
             $accountDetails->save();
     

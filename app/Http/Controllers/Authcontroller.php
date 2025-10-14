@@ -10,7 +10,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\URL;
-use Str;
+use Illuminate\Support\Str;
+
 
 class Authcontroller extends Controller
 {
