@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use App\Http\Controllers\userController;
 use App\Http\Controllers\BankController;
-use App\Http\Controllers\ChallengeController;
+use App\Http\Controllers\JoinChallengeController;
 
 Route::controller(Authcontroller::class)->group(function(){
     Route::post('/signup','register');
@@ -76,7 +76,7 @@ Route::middleware(['api','auth.user','verified'])->group(function () {
         Route::get('/like/list-user/{postId}', 'userthatlikepost');
     });
 
-    Route::controller(ChallengeController::class)->group(function(){
+    Route::controller(JoinChallengeController::class)->group(function(){
         Route::post('/join/challenge', 'joinChallenge');
         Route::get('/paystack/callback', 'callback')->name('payment.callback');
     });

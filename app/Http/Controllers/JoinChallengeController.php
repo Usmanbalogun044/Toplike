@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 
 use App\Models\Challenge;
 use App\Models\ChallengeEntry;
 use App\Models\User;
 use App\Models\WalletTransaction;
-use Illuminate\Http\Request;
 use Yabacon\Paystack;
 
-class ChallengeController extends Controller
+class JoinChallengeController extends Controller
 {
+    
       /**
        * join challenge  auth user
        * @param \Illuminate\Http\Request $request
@@ -141,5 +142,4 @@ class ChallengeController extends Controller
 
         return response()->json(['message' => 'Payment verification failed.'], 400);
     }
-
 }
