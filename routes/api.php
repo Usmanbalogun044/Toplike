@@ -59,6 +59,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         'banks' => $response,
     ])->setStatusCode(200, 'Banks retrieved successfully');
 });
+Route::get('/post/all', [postController::class, 'getPosts']);
 Route::middleware(['api','auth.user','verified'])->group(function () {
     Route::post('/user',[userController::class, 'updateProfile']);
     Route::get('/myprofile',[userController::class, 'me']);
@@ -68,7 +69,6 @@ Route::middleware(['api','auth.user','verified'])->group(function () {
         Route::post('/post/create', 'createPost');
         Route::get('/post/{id}', 'getPost');
         Route::get('/has-user-post','checkifuserhasposted');
-        Route::get('/posts/all', 'getPosts');
         Route::get('/users/{id}/posts', 'getUserPosts');
     });
     Route::controller(LikeController::class)->group(function(){
