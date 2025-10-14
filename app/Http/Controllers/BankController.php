@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Bank;
+use Illuminate\Support\Facades\Log;
 
 class BankController extends Controller
 {
@@ -20,7 +21,7 @@ class BankController extends Controller
                 'bank_account' => $bankAccount,
             ], 200);
         } catch (\Throwable $e) {
-            \Log::error('Bank account retrieval failed: ' . $e->getMessage());
+            Log::error('Bank account retrieval failed: ' . $e->getMessage());
             return response()->json([
                 'message' => 'An error occurred while retrieving bank account details',
                 'error' => $e->getMessage(),

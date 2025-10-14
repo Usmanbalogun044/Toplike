@@ -12,8 +12,13 @@ use Yabacon\Paystack;
 
 class ChallengeController extends Controller
 {
+      /**
+       * join challenge  auth user
+       * @param \Illuminate\Http\Request $request
+       * @return \Illuminate\Http\JsonResponse
+       */
       public function joinChallenge(Request $request)
-{
+        {
     $user = $request->user();
     $currentWeek = now()->weekOfYear;
     $year = now()->year;
@@ -83,6 +88,12 @@ class ChallengeController extends Controller
         return response()->json(['message' => 'Unable to initialize Paystack payment.', 'error' => $e->getMessage()], 500);
     }
 }
+
+    /**
+     * Payment Call back
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function callback(Request $request)
     {
         $paystack = new Paystack(config('services.paystack.secret'));

@@ -74,9 +74,6 @@ Route::middleware(['api','auth.user','verified'])->group(function () {
     Route::controller(LikeController::class)->group(function(){
         Route::post('/like-post/{postId}','likePost');
         Route::get('/like/list-user/{postId}', 'userthatlikepost');
-        // RESTful aliases
-        Route::post('/posts/{postId}/likes','likePost');
-        Route::get('/posts/{postId}/likes', 'userthatlikepost');
     });
 
     Route::controller(ChallengeController::class)->group(function(){
