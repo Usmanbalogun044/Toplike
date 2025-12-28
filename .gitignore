@@ -1,60 +1,23 @@
-# Ignore node_modules folder
-/node_modules/
-
-# Ignore log files and databases
-/npm-debug.log*
-/yarn-debug.log*
-/yarn-error.log*
-
-# Ignore environment files
+/.phpunit.cache
+/node_modules
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/storage/pail
+/vendor
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# Ignore build output
-# /dist
-# /build
-
-# Laravel backend specific
-/toplikebe/vendor/
-/toplikebe/node_modules/
-/toplikebe/.env
-# /toplikebe/bootstrap/cache/*.php
-# /toplikebe/bootstrap/cache/packages.php
-# /toplikebe/bootstrap/cache/services.php
-# /toplikebe/storage/app/public
-# /toplikebe/storage/framework/cache/
-# /toplikebe/storage/framework/sessions/
-# /toplikebe/storage/framework/testing/
-# /toplikebe/storage/framework/views/
-# /toplikebe/storage/logs/*.log
-# /toplikebe/public/hot
-# /toplikebe/public/storage
-# /toplikebe/public/build
-
-# Frontend specific
-/Toplikefe/node_modules/
-/Toplikefe/dist/
-/Toplikefe/.env
-/Toplikefe/.env.local
-/Toplikefe/.env.*.local
-/Toplikefe/npm-debug.log*
-/Toplikefe/yarn-debug.log*
-/Toplikefe/yarn-error.log*
-/Toplikefe/coverage/
-/Toplikefe/.DS_Store
-
-# IDE settings
-.vscode/
-.idea/
-
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
+.env.backup
+.env.production
+.phpactor.json
+.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+npm-debug.log
+yarn-error.log
+/auth.json
+/.fleet
+/.idea
+/.nova
+/.vscode
+/.zed
