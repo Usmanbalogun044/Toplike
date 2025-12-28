@@ -20,10 +20,29 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var list<string>
      */
     protected $fillable = [
-        'name', 'username', 'email', 'profile_picture',
-        'bio', 'last_login', 'is_active', 'is_suspended',
-         'password','email_verification_token','email_verified_at',
-         'image_public_id'
+        'name',
+        'username',
+        'email',
+        'password',
+        'phonenumber',
+        'country',
+        'state',
+        'lga',
+        'role',
+        'referal_code',
+        'balance',
+        'withdrawal_pin',
+        'device_token',
+        'image_public_id',
+        'is_verified',
+        'verified_expires_at',
+        'profile_picture',
+        'bio',
+        'last_login',
+        'is_active',
+        'is_suspended',
+        'email_verification_token',
+        'email_verified_at',
     ];
 
     // You might want to cast some fields
@@ -31,6 +50,10 @@ class User extends Authenticatable implements MustVerifyEmail
         'last_login' => 'datetime',
         'is_active' => 'boolean',
         'is_suspended' => 'boolean',
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+        'is_verified' => 'boolean',
+        'verified_expires_at' => 'datetime',
     ];
 
 
@@ -108,5 +131,15 @@ class User extends Authenticatable implements MustVerifyEmail
     public function bank()
     {
         return $this->hasOne(Bank::class);
+    }
+
+    public function subscriptions()
+    {
+        return $this->hasMany(UserSubscription::class);
+    }
+
+    public function activeSubscription()
+    {
+        return $this->hasOne(UserSubscription::class)->latestOfMany()->where('status', 'active')->where('expires_at', '>', now());
     }
 }

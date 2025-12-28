@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Authcontroller;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\bankaccountController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\postController;
@@ -21,28 +21,15 @@ use App\Http\Controllers\userController;
 use App\Http\Controllers\BankController;
 use App\Http\Controllers\JoinChallengeController;
 
-Route::controller(Authcontroller::class)->group(function(){
+Route::controller(AuthController::class)->group(function(){
     Route::post('/signup','register');
     Route::post('/signin','login');
     Route::post('/logout','logout')->middleware('auth:sanctum');
+    
+    // OTP Verification Routes
+    Route::post('/email/verify', 'verifyEmail');
+    Route::post('/email/resend', 'resendVerification');
 });
-
-
-//resend verification
-
-Route::post('/resend-verification', function (Request $request) {
-    $user = User::where('email', $request->email)->first();
-    if ($user) {
-        $token = Str::random(40);
-        $user->update(['email_verification_token' => $token]);
-        // Send verification email
-        $apiUrl = route('api.verification.verify', ['id' => $user->id, 'token' => $token]);
-        // Send email logic here
-        return response()->json(['message' => 'Verification email resent successfully'], 200);
-    } else {
-        return response()->json(['message' => 'User not found'], 404);
-    }
-})->name('api.resend-verification');
 
 
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
@@ -59,13 +46,13 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         'banks' => $response,
     ])->setStatusCode(200, 'Banks retrieved successfully');
 });
-Route::get('/post/all', [postController::class, 'getPosts']);
+Route::get('/post/all', [PostController::class, 'getPosts']);
 Route::middleware(['api','auth.user','verified'])->group(function () {
     Route::post('/user',[userController::class, 'updateProfile']);
     Route::get('/myprofile',[userController::class, 'me']);
     Route::get('/user/profile/{id}', [userController::class,'otheruserprofile']);
 
-    Route::controller(postController::class)->group(function(){
+    Route::controller(PostController::class)->group(function(){
         Route::post('/post/create', 'createPost');
         Route::get('/post/{id}', 'getPost');
         Route::get('/has-user-post','checkifuserhasposted');
@@ -109,6 +96,12 @@ Route::middleware(['api','auth.user','verified'])->group(function () {
         Route::post('/notifications/{id}/mark-as-read', 'markAsReadById');
         Route::delete('/notifications/{id}', 'deleteNotification');
 
+    });
+
+    Route::controller(\App\Http\Controllers\SubscriptionController::class)->group(function(){
+        Route::get('/subscription/plans', 'index');
+        Route::post('/subscription/initialize', 'initialize');
+        Route::get('/subscription/verify', 'callback'); // Dedicated callback for subscription if needed, or reuse generic
     });
 
 });

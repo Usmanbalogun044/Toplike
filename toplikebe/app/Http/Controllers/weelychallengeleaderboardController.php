@@ -30,7 +30,7 @@ class weelychallengeleaderboardController extends Controller
             ->withCount('likes')
             ->orderBy('likes_count', 'desc')
             ->take(100)
-            ->with(['user:id,username,profile_picture'])
+            ->with(['user:id,username,profile_picture,is_verified'])
             ->get();
             // the totalpool of the challenge
         $totalPool = $challenge->total_pool;
