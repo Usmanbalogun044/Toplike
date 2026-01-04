@@ -2,112 +2,137 @@
 
 namespace App\Services;
 
+use App\Mail\otpmail;
 use App\Models\User;
+use App\Models\UserProfile;
+use App\Models\UserWallet;
+use App\Models\Verification;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Str;
-use Illuminate\Auth\Events\Registered;
-use Illuminate\Support\Facades\Auth;
-
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthService
 {
-    /**
-     * Register a new user and send OTP.
-     */
-    public function register(array $data)
+    public function register(array $data): User
     {
-        Log::info('Registering new user', ['email' => $data['email'], 'username' => $data['username']]);
-        
-        $user = User::create([
-            'name' => $data['name'],
-            'username' => $data['username'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
-        ]);
+        return DB::transaction(function () use ($data) {
+            // 1. Create User
+            $user = User::create([
+                'username' => $data['username'],
+                'email' => $data['email'],
+                'password' => Hash::make($data['password']),
+                'role' => 'user',
+                'status' => 'active',
+                'is_online' => false,
+            ]);
 
-        $user->createWallet();
+            // 2. Create Profile
+            UserProfile::create([
+                'user_id' => $user->id,
+                'first_name' => $data['first_name'],
+                'last_name' => $data['last_name'],
+                'phone_number' => $data['phone_number'] ?? null,
+                'country' => $data['country'],
+                'is_verified' => false,
+            ]);
 
-        // Generate and Send OTP
-        $this->sendVerificationOtp($user);
+            // 3. Create Wallet
+            UserWallet::create([
+                'user_id' => $user->id,
+                'balance' => 0.0000,
+                'currency' => 'NGN',
+                'is_frozen' => false,
+            ]);
 
-        return $user;
+            // 4. Generate & Store OTP
+            $this->generateAndSendOtp($user, 'registration');
+
+            return $user;
+        });
     }
 
-    /**
-     * Generate 6-digit OTP and store in Cache for 15 minutes.
-     */
-    public function sendVerificationOtp(User $user)
+    public function login(array $credentials): array
     {
-        $otp = rand(100000, 999999);
-        $key = 'email_verification_otp_' . $user->id;
-        
-        Log::info('Generating OTP for user', ['user_id' => $user->id, 'email' => $user->email, 'otp' => $otp]);
-
-        // Store in cache for 15 mins
-        Cache::put($key, $otp, now()->addMinutes(15));
-        
-        Log::info('Sending OTP email', ['email' => $user->email]);
-
-        try {
-            // Send Email
-            Mail::send('emails.verify_otp', ['user' => $user, 'otp' => $otp], function ($message) use ($user) {
-                $message->to($user->email);
-                $message->subject('Your TopLike Verification Code');
-            });
-            Log::info('OTP email sent successfully', ['email' => $user->email]);
-        } catch (\Exception $e) {
-            Log::error('Failed to send OTP email', ['email' => $user->email, 'error' => $e->getMessage()]);
-            throw $e;
+        if (! $token = JWTAuth::attempt($credentials)) {
+            throw new \Exception('Invalid credentials', 401);
         }
+
+        $user = auth()->user();
+
+        // Check if user is active
+        // if ($user->status !== 'active') {
+        //     auth()->logout();
+        //     throw new \Exception('Account is ' . $user->status, 403);
+        // }
+
+        // Update last login
+        $user->update(['last_active_at' => now(), 'is_online' => true]);
+
+        return [
+            'user' => $user->load('profile', 'wallet'),
+            'token' => $token,
+        ];
     }
 
-    /**
-     * Verify the OTP provided by the user.
-     */
-    public function verifyOtp(User $user, $otp)
+    public function verifyOtp(string $email, string $code, string $type): bool
     {
-        $key = 'email_verification_otp_' . $user->id;
-        $cachedOtp = Cache::get($key);
+        $verification = Verification::where('identifier', $email)
+            ->where('type', $type)
+            ->where('expires_at', '>', now())
+            ->first();
 
-        Log::info('Verifying OTP', ['user_id' => $user->id, 'email' => $user->email, 'provided_otp' => $otp, 'cached_otp' => $cachedOtp]);
-
-        if (!$cachedOtp || $cachedOtp != $otp) {
-            Log::warning('OTP verification failed', ['user_id' => $user->id, 'reason' => 'Mismatch or expired']);
-            return false;
+        if (! $verification || ! Hash::check($code, $verification->code)) {
+            throw new \Exception('Invalid or expired OTP', 400);
         }
 
-        // Verify user
-        if (!$user->hasVerifiedEmail()) {
-            $user->markEmailAsVerified();
-            Log::info('User email verified successfully', ['user_id' => $user->id]);
+        // Mark as verified
+        $verification->update(['verified_at' => now()]);
+
+        // If registration, mark profile as verified (or email_verified_at on user)
+        if ($type === 'registration') {
+            $user = User::where('email', $email)->first();
+            if ($user) {
+                $user->update(['email_verified_at' => now()]);
+                // Optionally verify profile too if that's the logic
+                // $user->profile()->update(['is_verified' => true]);
+            }
         }
 
-        Cache::forget($key);
-        
+        // Delete used OTP
+        $verification->delete();
+
         return true;
     }
 
-
-    /**
-     * Handle Login logic.
-     */
-    public function login(array $credentials)
+    public function generateAndSendOtp(User $user, string $type): void
     {
-        Log::info('Attempting login', ['email' => $credentials['email']]);
+        $code = (string) rand(100000, 999999);
+        
+        // Invalidate old OTPs of same type
+        Verification::where('identifier', $user->email)
+            ->where('type', $type)
+            ->delete();
 
-        if (!Auth::guard('web')->attempt($credentials)) {
-            Log::warning('Login failed: Invalid credentials', ['email' => $credentials['email']]);
-            return null;
+        Verification::create([
+            'identifier' => $user->email,
+            'code' => Hash::make($code),
+            'type' => $type,
+            'expires_at' => now()->addMinutes(15),
+        ]);
+
+        // Mail::to($user->email)->send(new otpmail($code));
+        Log::info("OTP for {$user->email} ($type): $code");
+    }
+
+    public function logout()
+    {
+        $user = auth()->user();
+        if ($user) {
+            $user->update(['is_online' => false]);
         }
-
-        $user = Auth::user();
-        Log::info('Login successful', ['user_id' => $user->id, 'email' => $user->email]);
-
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return ['user' => $user, 'token' => $token];
+        auth()->logout();
     }
 }

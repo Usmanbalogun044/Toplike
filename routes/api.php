@@ -1,108 +1,23 @@
 <?php
 
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\bankaccountController;
-use App\Http\Controllers\LikeController;
-use App\Http\Controllers\postController;
-use App\Models\Post;
-use App\Models\User;
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
-use Illuminate\Http\Request;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\UserProfileController;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Notification;
-use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\paymentController;
-use App\Http\Controllers\WalletController;
-use App\Http\Controllers\weelychallengeleaderboardController;
-use App\Http\Controllers\withdrawController;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Str;
-use App\Http\Controllers\userController;
-use App\Http\Controllers\BankController;
-use App\Http\Controllers\JoinChallengeController;
 
-Route::controller(AuthController::class)->group(function(){
-    Route::post('/signup','register');
-    Route::post('/signin','login');
-    Route::post('/logout','logout')->middleware('auth:sanctum');
+Route::group(['prefix' => 'auth'], function () {
+    // Rate limit: 3 requests per 1 hour to prevent bot spam
+    Route::post('register', [AuthController::class, 'register'])
+        ->middleware(['throttle:3,60', 'check.bot']);
     
-    // OTP Verification Routes
-    Route::post('/email/verify', 'verifyEmail');
-    Route::post('/email/resend', 'resendVerification');
-});
-
-
-Route::middleware(['auth:sanctum', 'verified'])->group(function () {
-    Route::get('/user/profile', function (Request $request) {
-        return $request->user();
+    Route::post('login', [AuthController::class, 'login'])->middleware('throttle:10,1');
+    Route::post('verify-otp', [AuthController::class, 'verifyOtp'])->middleware('throttle:5,1');
+    
+    Route::group(['middleware' => 'auth:api'], function () {
+        Route::post('logout', [AuthController::class, 'logout']);
+        // Routes requiring active account status
+        Route::group(['middleware' => 'user.active'], function () {
+            Route::get('me', [AuthController::class, 'me']);
+            Route::post('profile/update', [UserProfileController::class, 'update']);
+        });
     });
 });
-   Route::get('/bankaccount/list', function (Request $request) {
-    //paystack api to list bank
-    $paystack = new \Yabacon\Paystack(env('PAYSTACK_SECRET_KEY'));
-    $response = $paystack->bank->list();
-    return response()->json([
-        'message' => 'Banks retrieved successfully',
-        'banks' => $response,
-    ])->setStatusCode(200, 'Banks retrieved successfully');
-});
-Route::get('/post/all', [PostController::class, 'getPosts']);
-Route::middleware(['api','auth.user','verified'])->group(function () {
-    Route::post('/user',[userController::class, 'updateProfile']);
-    Route::get('/myprofile',[userController::class, 'me']);
-    Route::get('/user/profile/{id}', [userController::class,'otheruserprofile']);
-
-    Route::controller(PostController::class)->group(function(){
-        Route::post('/post/create', 'createPost');
-        Route::get('/post/{id}', 'getPost');
-        Route::get('/has-user-post','checkifuserhasposted');
-        Route::get('/users/{id}/posts', 'getUserPosts');
-    });
-    Route::controller(LikeController::class)->group(function(){
-        Route::post('/like-post/{postId}','likePost');
-        Route::get('/like/list-user/{postId}', 'userthatlikepost');
-    });
-
-    Route::controller(JoinChallengeController::class)->group(function(){
-        Route::post('/join/challenge', 'joinChallenge');
-        Route::get('/paystack/callback', 'callback')->name('payment.callback');
-    });
-  Route::controller(WalletController::class)->group(function(){
-        Route::get('/wallet', 'wallet');
-        Route::get('/wallet/transactions', 'walletTransactions');
-    });
-    Route::controller(weelychallengeleaderboardController::class)->group(function(){
-        Route::get('/weekly/challenge/leaderboard', 'leaderboard');
-    });
-    Route::controller(bankaccountController::class)->group(function(){
-        Route::post('/bankaccount/create', 'updateOrCreateBankAccount');
-        Route::put('/bankaccount', 'updateOrCreateBankAccount');
-        Route::get('/bankaccount', 'getBankAccount');
-        Route::get('/banks/list', 'Listnigerianigerianbanks');
-    });
-    Route::get('/allbanks',[BankController::class, 'allbanks']);
-    Route::get('/bankdetails',[BankController::class, 'getbankdetails']);
-    Route::controller(withdrawController::class)->group(function(){
-        Route::post('/withdraw', 'withdraw');
-        Route::get('/withdraw/history', 'withdrawHistory');
-    });
-    Route::controller(NotificationController::class)->group(function(){
-        Route::get('/notifications', 'getUserNotifications');
-        Route::get('/notifications/mark-as-read', 'markAsRead');
-        Route::get('/notifications/mark-as-read/{id}', 'markAsReadById');
-        Route::delete('/notifications/delete/{id}', 'deleteNotification');
-        // RESTful aliases for state changes
-        Route::post('/notifications/mark-as-read', 'markAsRead');
-        Route::post('/notifications/{id}/mark-as-read', 'markAsReadById');
-        Route::delete('/notifications/{id}', 'deleteNotification');
-
-    });
-
-    Route::controller(\App\Http\Controllers\SubscriptionController::class)->group(function(){
-        Route::get('/subscription/plans', 'index');
-        Route::post('/subscription/initialize', 'initialize');
-        Route::get('/subscription/verify', 'callback'); // Dedicated callback for subscription if needed, or reuse generic
-    });
-
-});
-

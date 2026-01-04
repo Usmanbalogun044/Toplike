@@ -11,18 +11,17 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
-    ->withMiddleware(function (Middleware $middleware) {
+    ->withMiddleware(function (Middleware $middleware): void {
         $middleware->api(prepend: [
-            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+            \App\Http\Middleware\ForceJsonResponse::class,
         ]);
 
         $middleware->alias([
-            'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
-            'auth.user' => \App\Http\Middleware\EnsureUserIsAuthenticated::class,
+            'check.bot' => \App\Http\Middleware\CheckBotMiddleware::class,
+            'user.active' => \App\Http\Middleware\EnsureUserIsActive::class,
+            'profile.verified' => \App\Http\Middleware\EnsureProfileIsVerified::class,
         ]);
-
-        //
     })
-    ->withExceptions(function (Exceptions $exceptions) {
+    ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->create();

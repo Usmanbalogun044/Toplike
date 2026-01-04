@@ -2,18 +2,22 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 
 class ChallengeEntry extends Model
 {
-    protected $fillable = ['challenge_id', 'user_id', 'has_posted', 'has_paid'];
+    use HasUuids;
+
+    protected $fillable = [
+        'challenge_id',
+        'user_id',
+        'payment_status',
+        'paid_at',
+    ];
+
     protected $casts = [
-        'has_posted' => 'boolean',
-        'is_winner' => 'boolean',
-        'is_visible' => 'boolean',
-        'is_approved' => 'boolean',
-        'is_rejected' => 'boolean',
-        'is_winner_paid' => 'boolean',
+        'paid_at' => 'datetime',
     ];
 
     public function challenge()

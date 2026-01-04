@@ -2,144 +2,120 @@
 
 namespace App\Models;
 
- use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Enums\UserRole;
+use App\Enums\UserStatus;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use App\Models\BankAccount;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable implements JWTSubject
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, HasUuids, SoftDeletes;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
-        'name',
         'username',
         'email',
-        'password',
-        'phonenumber',
-        'country',
-        'state',
-        'lga',
-        'role',
-        'referal_code',
-        'balance',
-        'withdrawal_pin',
-        'device_token',
-        'image_public_id',
-        'is_verified',
-        'verified_expires_at',
-        'profile_picture',
-        'bio',
-        'last_login',
-        'is_active',
-        'is_suspended',
-        'email_verification_token',
         'email_verified_at',
+        'password',
+        'role',
+        'status',
+        'is_online',
+        'last_active_at',
     ];
 
-    // You might want to cast some fields
-    protected $casts = [
-        'last_login' => 'datetime',
-        'is_active' => 'boolean',
-        'is_suspended' => 'boolean',
-        'email_verified_at' => 'datetime',
-        'password' => 'hashed',
-        'is_verified' => 'boolean',
-        'verified_expires_at' => 'datetime',
-    ];
-
-
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+        'is_online' => 'boolean',
+        'last_active_at' => 'datetime',
+        'role' => UserRole::class,
+        'status' => UserStatus::class,
+    ];
+
     /**
-     * Get the attributes that should be cast.
+     * Get the identifier that will be stored in the subject claim of the JWT.
      *
-     * @return array<string, string>
+     * @return mixed
      */
-    protected function casts(): array
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    /**
+     * Return a key value array, containing any custom claims to be added to the JWT.
+     *
+     * @return array
+     */
+    public function getJWTCustomClaims()
     {
         return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'role' => $this->role,
+            'username' => $this->username,
         ];
     }
-    public function isSuspended()
+
+    // Relationships
+
+    public function profile(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
-        return $this->is_suspended;
+        return $this->hasOne(UserProfile::class);
     }
 
-    public function suspendUser()
-    {
-        $this->is_suspended = true;
-        $this->save();
-    }
-
-    public function unsuspendUser()
-    {
-        $this->is_suspended = false;
-        $this->save();
-    }
-    public function posts()
-    {
-        return $this->hasMany(Post::class);
-    }
-    public function likes()
-    {
-        return $this->hasMany(Like::class);
-    }
-    public function wallet()
+    public function wallet(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
         return $this->hasOne(UserWallet::class);
     }
-    public function transactions()
+
+    public function activities(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(WalletTransaction::class);
+        return $this->hasMany(UserActivity::class);
     }
-    public function createwallet()
+
+    public function followers(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
-        return $this->hasOne(UserWallet::class)->create([
-            'user_id' => $this->id,
-            'balance' => 0,
-            'last_transaction_at' => now(),
-        ]);
+        return $this->belongsToMany(User::class, 'follows', 'following_id', 'follower_id')
+            ->withTimestamps();
     }
-    public function challenge()
+
+    public function following(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
-        return $this->hasMany(Challenge::class);
+        return $this->belongsToMany(User::class, 'follows', 'follower_id', 'following_id')
+            ->withTimestamps();
     }
-    //challengeentry
-    public function challengeentry()
+
+    public function posts(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Post::class);
+    }
+
+    public function likes(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Like::class);
+    }
+
+    public function comments(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    public function challengeEntries(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(ChallengeEntry::class);
     }
-    public function bank()
-    {
-        return $this->hasOne(Bank::class);
-    }
 
-    public function subscriptions()
+    public function withdrawals(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(UserSubscription::class);
-    }
-
-    public function activeSubscription()
-    {
-        return $this->hasOne(UserSubscription::class)->latestOfMany()->where('status', 'active')->where('expires_at', '>', now());
+        return $this->hasMany(Withdrawal::class);
     }
 }
