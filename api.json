@@ -6,126 +6,27 @@
     },
     "servers": [
         {
-            "url": "https://api.toplike.app/api",
-            "description": "Production"
+            "url": "http://localhost/api"
+        }
+    ],
+    "security": [
+        {
+            "BearerAuth": []
         }
     ],
     "paths": {
-        "/signup": {
+        "/auth/register": {
             "post": {
-                "operationId": "authcontroller.register",
+                "operationId": "auth.register",
                 "tags": [
-                    "Authcontroller"
+                    "Auth"
                 ],
                 "requestBody": {
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "name": {
-                                        "type": "string",
-                                        "maxLength": 255
-                                    },
-                                    "username": {
-                                        "type": "string",
-                                        "maxLength": 255
-                                    },
-                                    "email": {
-                                        "type": "string",
-                                        "format": "email"
-                                    },
-                                    "password": {
-                                        "type": "string",
-                                        "minLength": 8
-                                    },
-                                    "password_confirmation": {
-                                        "type": "string",
-                                        "minLength": 8
-                                    }
-                                },
-                                "required": [
-                                    "name",
-                                    "username",
-                                    "email",
-                                    "password",
-                                    "password_confirmation"
-                                ]
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "User registered successfully! Please verify your email."
-                                        },
-                                        "token": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message",
-                                        "token"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "errors": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "errors"
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/signin": {
-            "post": {
-                "operationId": "authcontroller.login",
-                "tags": [
-                    "Authcontroller"
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "email": {
-                                        "type": "string",
-                                        "format": "email"
-                                    },
-                                    "password": {
-                                        "type": "string"
-                                    }
-                                },
-                                "required": [
-                                    "email",
-                                    "password"
-                                ]
+                                "$ref": "#/components/schemas/RegisterRequest"
                             }
                         }
                     }
@@ -138,17 +39,147 @@
                                 "schema": {
                                     "type": "object",
                                     "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "error"
-                                        },
                                         "message": {
-                                            "type": "string",
-                                            "example": "Something went wrong. Please try again."
+                                            "type": "string"
                                         }
                                     },
                                     "required": [
-                                        "status",
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Registration successful. Please verify your email."
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/UserResource"
+                                        }
+                                    },
+                                    "required": [
+                                        "message",
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    }
+                }
+            }
+        },
+        "/auth/login": {
+            "post": {
+                "operationId": "auth.login",
+                "tags": [
+                    "Auth"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoginRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "type": "string"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "Login successful"
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/UserResource"
+                                                },
+                                                "token": {
+                                                    "type": "string"
+                                                },
+                                                "token_type": {
+                                                    "type": "string",
+                                                    "example": "bearer"
+                                                },
+                                                "expires_in": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "message",
+                                                "data",
+                                                "token",
+                                                "token_type",
+                                                "expires_in"
+                                            ]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    }
+                }
+            }
+        },
+        "/auth/verify-otp": {
+            "post": {
+                "operationId": "auth.verifyOtp",
+                "tags": [
+                    "Auth"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/VerifyOtpRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
                                         "message"
                                     ]
                                 }
@@ -164,34 +195,7 @@
                                     "properties": {
                                         "message": {
                                             "type": "string",
-                                            "example": "Login successful"
-                                        },
-                                        "token": {
-                                            "type": "string"
-                                        },
-                                        "user": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message",
-                                        "token",
-                                        "user"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Invalid credentials"
+                                            "example": "Verification successful."
                                         }
                                     },
                                     "required": [
@@ -201,32 +205,20 @@
                             }
                         }
                     },
-                    "400": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "errors": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "errors"
-                                    ]
-                                }
-                            }
-                        }
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
                     }
                 }
             }
         },
-        "/logout": {
+        "/auth/logout": {
             "post": {
-                "operationId": "authcontroller.logout",
+                "operationId": "auth.logout",
                 "tags": [
-                    "Authcontroller"
+                    "Auth"
                 ],
                 "responses": {
                     "200": {
@@ -238,7 +230,7 @@
                                     "properties": {
                                         "message": {
                                             "type": "string",
-                                            "example": "Logged out successfully"
+                                            "example": "Successfully logged out"
                                         }
                                     },
                                     "required": [
@@ -254,47 +246,37 @@
                 }
             }
         },
-        "/allbanks": {
+        "/auth/me": {
             "get": {
-                "operationId": "bank.allbanks",
+                "operationId": "auth.me",
                 "tags": [
-                    "Bank"
+                    "Auth"
                 ],
                 "responses": {
                     "200": {
-                        "description": "",
+                        "description": "`UserResource`",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "received"
-                                        },
-                                        "bank": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message",
-                                        "bank"
-                                    ]
+                                    "$ref": "#/components/schemas/UserResource"
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
         },
-        "/bankdetails": {
+        "/banks": {
             "get": {
-                "operationId": "bank.getbankdetails",
+                "operationId": "bank.list",
                 "tags": [
                     "Bank"
                 ],
                 "responses": {
-                    "500": {
+                    "400": {
                         "description": "",
                         "content": {
                             "application/json": {
@@ -302,54 +284,7 @@
                                     "type": "object",
                                     "properties": {
                                         "message": {
-                                            "type": "string",
-                                            "example": "An error occurred while retrieving bank account details"
-                                        },
-                                        "error": {
                                             "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message",
-                                        "error"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Bank account details retrieved successfully"
-                                        },
-                                        "bank_account": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message",
-                                        "bank_account"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "No bank account found"
                                         }
                                     },
                                     "required": [
@@ -358,19 +293,73 @@
                                 }
                             }
                         }
+                    },
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "anyOf": [
+                                                {
+                                                    "type": "string"
+                                                },
+                                                {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    },
+                                                    "minItems": 0,
+                                                    "maxItems": 0,
+                                                    "additionalItems": false
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
                     }
                 }
             }
         },
-        "/join/challenge": {
+        "/banks/resolve": {
             "post": {
-                "operationId": "challenge.joinChallenge",
-                "summary": "join challenge  auth user",
+                "operationId": "bank.resolve",
                 "tags": [
-                    "Challenge"
+                    "Bank"
                 ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "bank_code": {
+                                        "type": "string"
+                                    },
+                                    "account_number": {
+                                        "type": "string",
+                                        "minLength": 10,
+                                        "maxLength": 10
+                                    }
+                                },
+                                "required": [
+                                    "bank_code",
+                                    "account_number"
+                                ]
+                            }
+                        }
+                    }
+                },
                 "responses": {
-                    "500": {
+                    "400": {
                         "description": "",
                         "content": {
                             "application/json": {
@@ -378,21 +367,58 @@
                                     "type": "object",
                                     "properties": {
                                         "message": {
-                                            "type": "string",
-                                            "example": "Unable to initialize Paystack payment."
-                                        },
-                                        "error": {
                                             "type": "string"
                                         }
                                     },
                                     "required": [
-                                        "message",
-                                        "error"
+                                        "message"
                                     ]
                                 }
                             }
                         }
                     },
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "account_name": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "account_name"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/challenge/join": {
+            "post": {
+                "operationId": "challenge.join",
+                "tags": [
+                    "Challenge"
+                ],
+                "responses": {
                     "200": {
                         "description": "",
                         "content": {
@@ -402,59 +428,77 @@
                                         {
                                             "type": "object",
                                             "properties": {
+                                                "joined": {
+                                                    "type": "boolean"
+                                                },
+                                                "reason": {
+                                                    "type": "string",
+                                                    "example": "insufficient_funds"
+                                                },
                                                 "message": {
                                                     "type": "string",
-                                                    "example": "Insufficient wallet balance. Redirecting to Paystack."
+                                                    "example": "Insufficient funds. Fund your wallet using your virtual account."
                                                 },
-                                                "redirect_url": {
+                                                "account": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "number": {
+                                                            "type": "string"
+                                                        },
+                                                        "bank_name": {
+                                                            "type": "string"
+                                                        },
+                                                        "bank_code": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "number",
+                                                        "bank_name",
+                                                        "bank_code"
+                                                    ]
+                                                },
+                                                "balance": {
                                                     "type": "string"
                                                 },
-                                                "reference": {
-                                                    "type": "string"
+                                                "entry_fee": {
+                                                    "type": "number"
                                                 }
                                             },
                                             "required": [
+                                                "joined",
+                                                "reason",
                                                 "message",
-                                                "redirect_url",
-                                                "reference"
+                                                "account",
+                                                "balance",
+                                                "entry_fee"
                                             ]
                                         },
                                         {
                                             "type": "object",
                                             "properties": {
-                                                "message": {
-                                                    "type": "string",
-                                                    "example": "Joined challenge successfully using wallet."
+                                                "joined": {
+                                                    "type": "boolean"
                                                 }
                                             },
                                             "required": [
-                                                "message"
-                                            ]
-                                        },
-                                        {
-                                            "type": "object",
-                                            "properties": {
-                                                "message": {
-                                                    "type": "string",
-                                                    "example": "Already joined this week's challenge."
-                                                }
-                                            },
-                                            "required": [
-                                                "message"
+                                                "joined"
                                             ]
                                         }
                                     ]
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
         },
-        "/paystack/callback": {
+        "/challenge/join/callback": {
             "get": {
-                "operationId": "payment.callback",
-                "summary": "Payment Call back",
+                "operationId": "challenge.joinCallback",
                 "tags": [
                     "Challenge"
                 ],
@@ -468,7 +512,7 @@
                     }
                 ],
                 "responses": {
-                    "400": {
+                    "200": {
                         "description": "",
                         "content": {
                             "application/json": {
@@ -477,771 +521,20 @@
                                     "properties": {
                                         "message": {
                                             "type": "string",
-                                            "example": "Payment verification failed."
+                                            "enum": [
+                                                "Challenge joined successfully",
+                                                "Payment verified, but join failed"
+                                            ]
                                         }
                                     },
                                     "required": [
                                         "message"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Payment successful. Joined challenge successfully."
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/like-post/{postId}": {
-            "post": {
-                "operationId": "like.likePost",
-                "tags": [
-                    "Like"
-                ],
-                "parameters": [
-                    {
-                        "name": "postId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Post liked/unliked successfully"
-                                        },
-                                        "likes_count": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message",
-                                        "likes_count"
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/like/list-user/{postId}": {
-            "get": {
-                "operationId": "like.userthatlikepost",
-                "tags": [
-                    "Like"
-                ],
-                "parameters": [
-                    {
-                        "name": "postId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "likes": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "likes"
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/notifications": {
-            "get": {
-                "operationId": "notification.getUserNotifications",
-                "summary": "Get all notifications for the authenticated user",
-                "tags": [
-                    "Notification"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Fetch notifications using the relationship",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "string"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/notifications/delete/{id}": {
-            "delete": {
-                "operationId": "notification.deleteNotification_0",
-                "tags": [
-                    "Notification"
-                ],
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Notification deleted successfully"
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/notifications/{id}": {
-            "delete": {
-                "operationId": "notification.deleteNotification_0",
-                "tags": [
-                    "Notification"
-                ],
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Notification deleted successfully"
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/wallet": {
-            "get": {
-                "operationId": "wallet.wallet",
-                "tags": [
-                    "Wallet"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "wallet": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "wallet"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Wallet not found"
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/wallet/transactions": {
-            "get": {
-                "operationId": "wallet.walletTransactions",
-                "tags": [
-                    "Wallet"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "transacton": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "transacton"
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/bankaccount/create": {
-            "post": {
-                "operationId": "bankaccount.updateOrCreateBankAccount_0",
-                "tags": [
-                    "bankaccount"
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "account_number": {
-                                        "type": "string",
-                                        "maxLength": 10
-                                    },
-                                    "bank_name": {
-                                        "type": "string",
-                                        "maxLength": 255
-                                    }
-                                },
-                                "required": [
-                                    "account_number",
-                                    "bank_name"
-                                ]
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "500": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Failed to verify or save bank account."
-                                        },
-                                        "error": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message",
-                                        "error"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Bank account details saved successfully."
-                                        },
-                                        "bank_account": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message",
-                                        "bank_account"
                                     ]
                                 }
                             }
                         }
                     },
                     "400": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Account verification failed."
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Invalid bank name. Please select a valid bank."
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/ValidationException"
-                    }
-                }
-            }
-        },
-        "/bankaccount": {
-            "put": {
-                "operationId": "bankaccount.updateOrCreateBankAccount_0",
-                "tags": [
-                    "bankaccount"
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "account_number": {
-                                        "type": "string",
-                                        "maxLength": 10
-                                    },
-                                    "bank_name": {
-                                        "type": "string",
-                                        "maxLength": 255
-                                    }
-                                },
-                                "required": [
-                                    "account_number",
-                                    "bank_name"
-                                ]
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "500": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Failed to verify or save bank account."
-                                        },
-                                        "error": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message",
-                                        "error"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Bank account details saved successfully."
-                                        },
-                                        "bank_account": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message",
-                                        "bank_account"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Account verification failed."
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Invalid bank name. Please select a valid bank."
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/ValidationException"
-                    }
-                }
-            },
-            "get": {
-                "operationId": "bankaccount.getBankAccount",
-                "tags": [
-                    "bankaccount"
-                ],
-                "responses": {
-                    "500": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "An error occurred while retrieving bank account details"
-                                        },
-                                        "error": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message",
-                                        "error"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Bank account details retrieved successfully"
-                                        },
-                                        "bank_account": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message",
-                                        "bank_account"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "No bank account found"
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/banks/list": {
-            "get": {
-                "operationId": "bankaccount.listnigerianigerianbanks",
-                "tags": [
-                    "bankaccount"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "dd($response);",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Banks retrieved successfully"
-                                        },
-                                        "banks": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message",
-                                        "banks"
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/post/all": {
-            "get": {
-                "operationId": "post.getPosts",
-                "description": "Retrieves the specified post from storage. May optionally include related\nresources (e.g., author, comments) based on request parameters. Returns\na response or JSON payload with the post data. If the post does not exist,\na 404 response may be returned or a ModelNotFoundException thrown.",
-                "summary": "Get a single post by its identifier",
-                "tags": [
-                    "post"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "string"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/ModelNotFoundException"
-                    }
-                }
-            }
-        },
-        "/post/create": {
-            "post": {
-                "operationId": "post.createPost",
-                "description": "Handles the creation of a new post, including validation of input data,\nprocessing of media uploads, and association with the authenticated user.\nReturns a response or JSON payload indicating success or failure.",
-                "summary": "Create a new post",
-                "tags": [
-                    "post"
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "multipart/form-data": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "caption": {
-                                        "type": [
-                                            "string",
-                                            "null"
-                                        ]
-                                    },
-                                    "post_type": {
-                                        "type": "string",
-                                        "enum": [
-                                            "image",
-                                            "video",
-                                            "mixed"
-                                        ]
-                                    },
-                                    "music": {
-                                        "type": [
-                                            "string",
-                                            "null"
-                                        ],
-                                        "format": "binary",
-                                        "contentMediaType": "application/octet-stream",
-                                        "maxLength": 10240
-                                    },
-                                    "media": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "string",
-                                            "format": "binary",
-                                            "contentMediaType": "application/octet-stream",
-                                            "maxLength": 51200
-                                        },
-                                        "minItems": 1
-                                    }
-                                },
-                                "required": [
-                                    "post_type",
-                                    "media"
-                                ]
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "500": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Failed to create post."
-                                        },
-                                        "error": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message",
-                                        "error"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "201": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Post created successfully"
-                                        },
-                                        "post": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message",
-                                        "post"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "403": {
                         "description": "",
                         "content": {
                             "application/json": {
@@ -1252,7 +545,7 @@
                                             "properties": {
                                                 "message": {
                                                     "type": "string",
-                                                    "example": "You have already posted for this week's challenge."
+                                                    "example": "Payment verification failed"
                                                 }
                                             },
                                             "required": [
@@ -1264,25 +557,51 @@
                                             "properties": {
                                                 "message": {
                                                     "type": "string",
-                                                    "example": "You must pay for the challenge to create a post."
-                                                }
-                                            },
-                                            "required": [
-                                                "message"
-                                            ]
-                                        },
-                                        {
-                                            "type": "object",
-                                            "properties": {
-                                                "message": {
-                                                    "type": "string",
-                                                    "example": "This week's challenge has already been completed."
+                                                    "example": "Missing reference"
                                                 }
                                             },
                                             "required": [
                                                 "message"
                                             ]
                                         }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/challenge/current": {
+            "get": {
+                "operationId": "challenge.current",
+                "tags": [
+                    "Challenge"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "anyOf": [
+                                                {
+                                                    "$ref": "#/components/schemas/Challenge"
+                                                },
+                                                {
+                                                    "type": "null"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
                                     ]
                                 }
                             }
@@ -1297,7 +616,7 @@
                                     "properties": {
                                         "message": {
                                             "type": "string",
-                                            "example": "No active challenge this week."
+                                            "example": "No active challenge available."
                                         }
                                     },
                                     "required": [
@@ -1306,27 +625,77 @@
                                 }
                             }
                         }
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/ValidationException"
                     }
                 }
             }
         },
-        "/post/{id}": {
+        "/challenges": {
             "get": {
-                "operationId": "post.getPost",
-                "summary": "Get Post by ID and the user that post it",
+                "operationId": "challenge.index",
                 "tags": [
-                    "post"
+                    "Challenge"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "string"
+                                        },
+                                        "meta": {
+                                            "type": "object",
+                                            "properties": {
+                                                "current_page": {
+                                                    "type": "string"
+                                                },
+                                                "last_page": {
+                                                    "type": "string"
+                                                },
+                                                "per_page": {
+                                                    "type": "string"
+                                                },
+                                                "total": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "current_page",
+                                                "last_page",
+                                                "per_page",
+                                                "total"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data",
+                                        "meta"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/challenges/{challenge}/leaderboard": {
+            "get": {
+                "operationId": "challenge.leaderboard",
+                "tags": [
+                    "Challenge"
                 ],
                 "parameters": [
                     {
-                        "name": "id",
+                        "name": "challenge",
                         "in": "path",
                         "required": true,
+                        "description": "The challenge ID",
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "format": "uuid"
                         }
                     }
                 ],
@@ -1336,7 +705,15 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "string"
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
                                 }
                             }
                         }
@@ -1347,11 +724,11 @@
                 }
             }
         },
-        "/has-user-post": {
-            "get": {
-                "operationId": "post.checkifuserhasposted",
+        "/challenge/join/webhook": {
+            "post": {
+                "operationId": "challenge.webhook",
                 "tags": [
-                    "post"
+                    "Challenge"
                 ],
                 "responses": {
                     "200": {
@@ -1363,7 +740,7 @@
                                     "properties": {
                                         "message": {
                                             "type": "string",
-                                            "example": "continue to post "
+                                            "example": "Webhook processed"
                                         }
                                     },
                                     "required": [
@@ -1373,7 +750,76 @@
                             }
                         }
                     },
-                    "403": {
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "Missing metadata"
+                                                }
+                                            },
+                                            "required": [
+                                                "message"
+                                            ]
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "Verification failed"
+                                                }
+                                            },
+                                            "required": [
+                                                "message"
+                                            ]
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "Missing reference"
+                                                }
+                                            },
+                                            "required": [
+                                                "message"
+                                            ]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/posts/{post}/like": {
+            "post": {
+                "operationId": "like.like",
+                "tags": [
+                    "Like"
+                ],
+                "parameters": [
+                    {
+                        "name": "post",
+                        "in": "path",
+                        "required": true,
+                        "description": "The post ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
                         "description": "",
                         "content": {
                             "application/json": {
@@ -1382,7 +828,7 @@
                                     "properties": {
                                         "message": {
                                             "type": "string",
-                                            "example": "You must pay for the challenge to create a post."
+                                            "example": "Post liked successfully."
                                         }
                                     },
                                     "required": [
@@ -1393,6 +839,32 @@
                         }
                     },
                     "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "like.unlike",
+                "tags": [
+                    "Like"
+                ],
+                "parameters": [
+                    {
+                        "name": "post",
+                        "in": "path",
+                        "required": true,
+                        "description": "The post ID",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
                         "description": "",
                         "content": {
                             "application/json": {
@@ -1401,7 +873,78 @@
                                     "properties": {
                                         "message": {
                                             "type": "string",
-                                            "example": "No active challenge this week."
+                                            "example": "Post unliked successfully."
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/paystack/webhook": {
+            "post": {
+                "operationId": "paymentWebhook.handle",
+                "tags": [
+                    "PaymentWebhook"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "event": {
+                                        "type": "string"
+                                    },
+                                    "data": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "ok"
+                                        }
+                                    },
+                                    "required": [
+                                        "status"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Invalid signature"
                                         }
                                     },
                                     "required": [
@@ -1414,20 +957,88 @@
                 }
             }
         },
-        "/users/{id}/posts": {
-            "get": {
-                "operationId": "post.getUserPosts",
-                "summary": "Get a particular users all post using Userid",
+        "/posts": {
+            "post": {
+                "operationId": "post.store",
                 "tags": [
-                    "post"
+                    "Post"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "media": {
+                                        "type": "string",
+                                        "format": "binary",
+                                        "contentMediaType": "application/octet-stream",
+                                        "maxLength": 10240
+                                    },
+                                    "caption": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "maxLength": 500
+                                    }
+                                },
+                                "required": [
+                                    "media"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Post created successfully for current challenge."
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Post"
+                                        }
+                                    },
+                                    "required": [
+                                        "message",
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/posts/{post}": {
+            "get": {
+                "operationId": "post.show",
+                "tags": [
+                    "Post"
                 ],
                 "parameters": [
                     {
-                        "name": "id",
+                        "name": "post",
                         "in": "path",
                         "required": true,
+                        "description": "The post ID",
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "format": "uuid"
                         }
                     }
                 ],
@@ -1437,20 +1048,34 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "string"
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
                                 }
                             }
                         }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
         },
-        "/user": {
+        "/auth/profile/update": {
             "post": {
-                "operationId": "user.updateProfile",
-                "description": "\u26a0\ufe0f Cannot generate request documentation: Undefined variable $user",
+                "operationId": "userProfile.update",
+                "description": "\u26a0\ufe0f Cannot generate request documentation: Attempt to read property \"id\" on null",
                 "tags": [
-                    "user"
+                    "UserProfile"
                 ],
                 "responses": {
                     "200": {
@@ -1465,7 +1090,7 @@
                                             "example": "Profile updated successfully"
                                         },
                                         "user": {
-                                            "type": "string"
+                                            "$ref": "#/components/schemas/User"
                                         }
                                     },
                                     "required": [
@@ -1476,7 +1101,160 @@
                             }
                         }
                     },
-                    "500": {
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/AuthorizationException"
+                    }
+                }
+            }
+        },
+        "/wallet": {
+            "get": {
+                "operationId": "wallet.show",
+                "tags": [
+                    "Wallet"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "balance": {
+                                                    "type": "string"
+                                                },
+                                                "currency": {
+                                                    "type": "string"
+                                                },
+                                                "is_frozen": {
+                                                    "type": "boolean"
+                                                },
+                                                "virtual_account_number": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "virtual_account_bank_name": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "virtual_account_bank_code": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "paystack_customer_code": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "funding_available": {
+                                                    "type": "boolean"
+                                                }
+                                            },
+                                            "required": [
+                                                "balance",
+                                                "currency",
+                                                "is_frozen",
+                                                "virtual_account_number",
+                                                "virtual_account_bank_name",
+                                                "virtual_account_bank_code",
+                                                "paystack_customer_code",
+                                                "funding_available"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/wallet/transactions": {
+            "get": {
+                "operationId": "wallet.transactions",
+                "tags": [
+                    "Wallet"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "string"
+                                        },
+                                        "meta": {
+                                            "type": "object",
+                                            "properties": {
+                                                "current_page": {
+                                                    "type": "string"
+                                                },
+                                                "last_page": {
+                                                    "type": "string"
+                                                },
+                                                "per_page": {
+                                                    "type": "string"
+                                                },
+                                                "total": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "current_page",
+                                                "last_page",
+                                                "per_page",
+                                                "total"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data",
+                                        "meta"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/wallet/virtual-account/provision": {
+            "post": {
+                "operationId": "wallet.provisionVirtualAccount",
+                "tags": [
+                    "Wallet"
+                ],
+                "responses": {
+                    "200": {
                         "description": "",
                         "content": {
                             "application/json": {
@@ -1485,11 +1263,259 @@
                                     "properties": {
                                         "message": {
                                             "type": "string",
-                                            "example": "An error occurred while updating the profile."
+                                            "example": "Virtual account provisioned"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "virtual_account_number": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "virtual_account_bank_name": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "virtual_account_bank_code": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "paystack_customer_code": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "virtual_account_number",
+                                                "virtual_account_bank_name",
+                                                "virtual_account_bank_code",
+                                                "paystack_customer_code"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "message",
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "message": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "message"
+                                            ]
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "Failed to create Paystack customer"
+                                                }
+                                            },
+                                            "required": [
+                                                "message"
+                                            ]
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "Dedicated virtual accounts are disabled. Enable PAYSTACK_ENABLE_DVA to proceed."
+                                                }
+                                            },
+                                            "required": [
+                                                "message"
+                                            ]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/wallet/withdrawals": {
+            "get": {
+                "operationId": "withdrawal.index",
+                "tags": [
+                    "Withdrawal"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "string"
+                                        },
+                                        "meta": {
+                                            "type": "object",
+                                            "properties": {
+                                                "current_page": {
+                                                    "type": "string"
+                                                },
+                                                "last_page": {
+                                                    "type": "string"
+                                                },
+                                                "per_page": {
+                                                    "type": "string"
+                                                },
+                                                "total": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "current_page",
+                                                "last_page",
+                                                "per_page",
+                                                "total"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data",
+                                        "meta"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "withdrawal.store",
+                "tags": [
+                    "Withdrawal"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "amount": {
+                                        "type": "number",
+                                        "minimum": 100
+                                    },
+                                    "bank_name": {
+                                        "type": "string"
+                                    },
+                                    "bank_code": {
+                                        "type": "string"
+                                    },
+                                    "account_number": {
+                                        "type": "string",
+                                        "minLength": 10,
+                                        "maxLength": 10
+                                    },
+                                    "account_name": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    }
+                                },
+                                "required": [
+                                    "amount",
+                                    "bank_name",
+                                    "bank_code",
+                                    "account_number"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "400": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
                                         }
                                     },
                                     "required": [
                                         "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Withdrawal initiated"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "status": {
+                                                    "type": "string"
+                                                },
+                                                "processed_at": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ],
+                                                    "format": "date-time"
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "status",
+                                                "processed_at"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "message",
+                                        "data"
                                     ]
                                 }
                             }
@@ -1519,338 +1545,505 @@
                         }
                     },
                     "401": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Unauthenticated"
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/myprofile": {
-            "get": {
-                "operationId": "user.me",
-                "tags": [
-                    "user"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "User profile retrieved successfully"
-                                        },
-                                        "user": {
-                                            "type": "string"
-                                        },
-                                        "posts": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message",
-                                        "user",
-                                        "posts"
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/user/profile/{id}": {
-            "get": {
-                "operationId": "user.otheruserprofile",
-                "summary": "Get other user's profile",
-                "tags": [
-                    "user"
-                ],
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "User profile retrieved successfully"
-                                        },
-                                        "user": {
-                                            "type": "string"
-                                        },
-                                        "posts": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message",
-                                        "user",
-                                        "posts"
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/weekly/challenge/leaderboard": {
-            "get": {
-                "operationId": "weelychallengeleaderboard.leaderboard",
-                "tags": [
-                    "weelychallengeleaderboard"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Leaderboard retrieved successfully"
-                                        },
-                                        "total_pool": {
-                                            "type": "string"
-                                        },
-                                        "leaderboard": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message",
-                                        "total_pool",
-                                        "leaderboard"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "403": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "This week's challenge has already been completed."
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "No active challenge this week."
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/withdraw": {
-            "post": {
-                "operationId": "withdraw.withdraw",
-                "tags": [
-                    "withdraw"
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "amount": {
-                                        "type": "number",
-                                        "minimum": 1000
-                                    }
-                                },
-                                "required": [
-                                    "amount"
-                                ]
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "500": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "anyOf": [
-                                        {
-                                            "type": "object",
-                                            "properties": {
-                                                "message": {
-                                                    "type": "string",
-                                                    "example": "Withdrawal request failed"
-                                                },
-                                                "error": {
-                                                    "type": "string"
-                                                }
-                                            },
-                                            "required": [
-                                                "message",
-                                                "error"
-                                            ]
-                                        },
-                                        {
-                                            "type": "object",
-                                            "properties": {
-                                                "message": {
-                                                    "type": "string",
-                                                    "example": "Withdrawal failed"
-                                                },
-                                                "data": {
-                                                    "type": "string"
-                                                }
-                                            },
-                                            "required": [
-                                                "message",
-                                                "data"
-                                            ]
-                                        },
-                                        {
-                                            "type": "object",
-                                            "properties": {
-                                                "message": {
-                                                    "type": "string",
-                                                    "example": "Failed to create recipient code"
-                                                }
-                                            },
-                                            "required": [
-                                                "message"
-                                            ]
-                                        }
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Withdrawal initiated"
-                                        },
-                                        "data": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message",
-                                        "data"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Insufficient wallet balance"
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "No bank account found"
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/ValidationException"
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
         }
     },
     "components": {
+        "securitySchemes": {
+            "BearerAuth": {
+                "type": "http",
+                "description": "Use JWT bearer token obtained from /api/auth/login",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        },
+        "schemas": {
+            "Challenge": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "week_number": {
+                        "type": "integer"
+                    },
+                    "year": {
+                        "type": "integer"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "starts_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "ends_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "entry_fee": {
+                        "type": "string"
+                    },
+                    "prize_pool": {
+                        "type": "string"
+                    },
+                    "rules": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "created_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "deleted_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "id",
+                    "title",
+                    "slug",
+                    "week_number",
+                    "year",
+                    "status",
+                    "starts_at",
+                    "ends_at",
+                    "entry_fee",
+                    "prize_pool",
+                    "rules",
+                    "created_at",
+                    "updated_at",
+                    "deleted_at"
+                ],
+                "title": "Challenge"
+            },
+            "LoginRequest": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "password": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "email",
+                    "password"
+                ],
+                "title": "LoginRequest"
+            },
+            "Post": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "user_id": {
+                        "type": "string"
+                    },
+                    "challenge_id": {
+                        "type": "string"
+                    },
+                    "caption": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "media_url": {
+                        "type": "string"
+                    },
+                    "media_type": {
+                        "type": "string"
+                    },
+                    "thumbnail_url": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "likes_count": {
+                        "type": "integer"
+                    },
+                    "comments_count": {
+                        "type": "integer"
+                    },
+                    "views_count": {
+                        "type": "integer"
+                    },
+                    "created_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "deleted_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "id",
+                    "user_id",
+                    "challenge_id",
+                    "caption",
+                    "media_url",
+                    "media_type",
+                    "thumbnail_url",
+                    "status",
+                    "likes_count",
+                    "comments_count",
+                    "views_count",
+                    "created_at",
+                    "updated_at",
+                    "deleted_at"
+                ],
+                "title": "Post"
+            },
+            "RegisterRequest": {
+                "type": "object",
+                "properties": {
+                    "website": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "description": "Honeypot field (should be empty)"
+                    },
+                    "username": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "maxLength": 255
+                    },
+                    "password": {
+                        "type": "string"
+                    },
+                    "first_name": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "last_name": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "phone_number": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "maxLength": 20
+                    },
+                    "country": {
+                        "type": "string",
+                        "maxLength": 100
+                    },
+                    "password_confirmation": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "username",
+                    "email",
+                    "password",
+                    "first_name",
+                    "last_name",
+                    "country",
+                    "password_confirmation"
+                ],
+                "title": "RegisterRequest"
+            },
+            "User": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "username": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "email_verified_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "role": {
+                        "$ref": "#/components/schemas/UserRole"
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/UserStatus"
+                    },
+                    "is_online": {
+                        "type": "boolean"
+                    },
+                    "last_active_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "created_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "deleted_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "id",
+                    "username",
+                    "email",
+                    "email_verified_at",
+                    "role",
+                    "status",
+                    "is_online",
+                    "last_active_at",
+                    "created_at",
+                    "updated_at",
+                    "deleted_at"
+                ],
+                "title": "User"
+            },
+            "UserResource": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "username": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "email_verified_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "role": {
+                        "$ref": "#/components/schemas/UserRole"
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/UserStatus"
+                    },
+                    "is_online": {
+                        "type": "boolean"
+                    },
+                    "last_active_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "created_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "deleted_at": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    }
+                },
+                "required": [
+                    "id",
+                    "username",
+                    "email",
+                    "email_verified_at",
+                    "role",
+                    "status",
+                    "is_online",
+                    "last_active_at",
+                    "created_at",
+                    "updated_at",
+                    "deleted_at"
+                ],
+                "title": "UserResource"
+            },
+            "UserRole": {
+                "type": "string",
+                "enum": [
+                    "admin",
+                    "creator",
+                    "user"
+                ],
+                "title": "UserRole"
+            },
+            "UserStatus": {
+                "type": "string",
+                "enum": [
+                    "active",
+                    "suspended",
+                    "banned"
+                ],
+                "title": "UserStatus"
+            },
+            "VerifyOtpRequest": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "code": {
+                        "type": "string",
+                        "minLength": 6,
+                        "maxLength": 6
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "registration",
+                            "login_otp",
+                            "password_reset"
+                        ]
+                    }
+                },
+                "required": [
+                    "email",
+                    "code",
+                    "type"
+                ],
+                "title": "VerifyOtpRequest"
+            }
+        },
         "responses": {
+            "ValidationException": {
+                "description": "Validation error",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "description": "Errors overview."
+                                },
+                                "errors": {
+                                    "type": "object",
+                                    "description": "A detailed description of each field that failed validation.",
+                                    "additionalProperties": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            },
+                            "required": [
+                                "message",
+                                "errors"
+                            ]
+                        }
+                    }
+                }
+            },
+            "AuthorizationException": {
+                "description": "Authorization error",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "description": "Error overview."
+                                }
+                            },
+                            "required": [
+                                "message"
+                            ]
+                        }
+                    }
+                }
+            },
             "AuthenticationException": {
                 "description": "Unauthenticated",
                 "content": {
@@ -1884,36 +2077,6 @@
                             },
                             "required": [
                                 "message"
-                            ]
-                        }
-                    }
-                }
-            },
-            "ValidationException": {
-                "description": "Validation error",
-                "content": {
-                    "application/json": {
-                        "schema": {
-                            "type": "object",
-                            "properties": {
-                                "message": {
-                                    "type": "string",
-                                    "description": "Errors overview."
-                                },
-                                "errors": {
-                                    "type": "object",
-                                    "description": "A detailed description of each field that failed validation.",
-                                    "additionalProperties": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            },
-                            "required": [
-                                "message",
-                                "errors"
                             ]
                         }
                     }

@@ -118,4 +118,9 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(Withdrawal::class);
     }
+
+    public function bank(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(BankAccount::class);
+    }
 }

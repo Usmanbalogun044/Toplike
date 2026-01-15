@@ -18,6 +18,11 @@ return new class extends Migration
             $table->string('currency')->default('NGN');
             $table->string('withdrawal_pin')->nullable();
             $table->boolean('is_frozen')->default(false);
+            $table->string('paystack_customer_code')->nullable()->index();
+            $table->string('paystack_dedicated_account_id')->nullable()->index();
+            $table->string('virtual_account_number')->nullable();
+            $table->string('virtual_account_bank_name')->nullable();
+            $table->string('virtual_account_bank_code')->nullable();
             $table->timestamps();
         });
     }

@@ -17,6 +17,11 @@ class UserWallet extends Model
         'currency',
         'withdrawal_pin',
         'is_frozen',
+        'paystack_customer_code',
+        'paystack_dedicated_account_id',
+        'virtual_account_number',
+        'virtual_account_bank_name',
+        'virtual_account_bank_code',
     ];
 
     protected $casts = [

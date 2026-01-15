@@ -35,4 +35,13 @@ return [
         ],
     ],
 
+    'paystack' => [
+        'public_key' => env('PAYSTACK_PUBLIC_KEY'),
+        'secret_key' => env('PAYSTACK_SECRET_KEY'),
+        'cacert' => env('PAYSTACK_CACERT_PATH'),
+        'enable_dva' => env('PAYSTACK_ENABLE_DVA', true),
+        'enable_transfers' => env('PAYSTACK_ENABLE_TRANSFERS', false),
+        'enable_bank_lookup' => env('PAYSTACK_ENABLE_BANK_LOOKUP', false),
+    ],
+
 ];

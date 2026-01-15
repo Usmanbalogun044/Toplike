@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Mail\otpmail;
 use App\Models\User;
 use App\Models\UserProfile;
 use App\Models\UserWallet;
@@ -10,8 +9,6 @@ use App\Models\Verification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthService
@@ -40,12 +37,33 @@ class AuthService
             ]);
 
             // 3. Create Wallet
-            UserWallet::create([
+            $wallet = UserWallet::create([
                 'user_id' => $user->id,
                 'balance' => 0.0000,
                 'currency' => 'NGN',
                 'is_frozen' => false,
             ]);
+
+            // 3b. Create Paystack customer and optionally a dedicated virtual account
+            try {
+                $gateway = app(\App\Services\PaymentGatewayService::class);
+                $customer = $gateway->createCustomer($user);
+                if ($customer['customer_code'] ?? null) {
+                    $wallet->paystack_customer_code = $customer['customer_code'];
+                    $wallet->save();
+
+                    if (config('services.paystack.enable_dva')) {
+                        $dva = $gateway->createDedicatedAccount($customer['customer_code']);
+                        $wallet->paystack_dedicated_account_id = $dva['dedicated_account_id'] ?? null;
+                        $wallet->virtual_account_number = $dva['account_number'] ?? null;
+                        $wallet->virtual_account_bank_name = $dva['bank_name'] ?? null;
+                        $wallet->virtual_account_bank_code = $dva['bank_code'] ?? null;
+                        $wallet->save();
+                    }
+                }
+            } catch (\Throwable $e) {
+                Log::warning('Paystack virtual account setup failed: ' . $e->getMessage());
+            }
 
             // 4. Generate & Store OTP
             $this->generateAndSendOtp($user, 'registration');
@@ -61,12 +79,6 @@ class AuthService
         }
 
         $user = auth()->user();
-
-        // Check if user is active
-        // if ($user->status !== 'active') {
-        //     auth()->logout();
-        //     throw new \Exception('Account is ' . $user->status, 403);
-        // }
 
         // Update last login
         $user->update(['last_active_at' => now(), 'is_online' => true]);
@@ -91,13 +103,11 @@ class AuthService
         // Mark as verified
         $verification->update(['verified_at' => now()]);
 
-        // If registration, mark profile as verified (or email_verified_at on user)
+        // If registration, mark email verified on user
         if ($type === 'registration') {
             $user = User::where('email', $email)->first();
             if ($user) {
                 $user->update(['email_verified_at' => now()]);
-                // Optionally verify profile too if that's the logic
-                // $user->profile()->update(['is_verified' => true]);
             }
         }
 
@@ -110,7 +120,7 @@ class AuthService
     public function generateAndSendOtp(User $user, string $type): void
     {
         $code = (string) rand(100000, 999999);
-        
+
         // Invalidate old OTPs of same type
         Verification::where('identifier', $user->email)
             ->where('type', $type)
@@ -127,7 +137,7 @@ class AuthService
         Log::info("OTP for {$user->email} ($type): $code");
     }
 
-    public function logout()
+    public function logout(): void
     {
         $user = auth()->user();
         if ($user) {
