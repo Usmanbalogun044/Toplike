@@ -32,6 +32,9 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
+# Copy application source so artisan exists even without bind mounts
+COPY . /var/www/html
+
 # Copy entrypoint script
 COPY docker-entrypoint.sh /usr/local/bin/start-app.sh
 RUN chmod +x /usr/local/bin/start-app.sh

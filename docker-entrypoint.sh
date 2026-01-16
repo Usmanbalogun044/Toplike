@@ -3,6 +3,23 @@ set -e
 
 cd /var/www/html
 
+# Ensure code is present (helpful if bind mount isn't available yet)
+if [ ! -f artisan ]; then
+  echo "artisan not found in /var/www/html. Waiting for volume..."
+  tries=0
+  while [ $tries -lt 20 ] && [ ! -f artisan ]; do
+    tries=$((tries+1))
+    sleep 0.5
+  done
+fi
+
+if [ ! -f artisan ]; then
+  echo "ERROR: Could not find 'artisan' in /var/www/html."
+  echo "Hint: Ensure the project is bind-mounted (docker compose) and file sharing is enabled for your drive."
+  ls -la
+  exit 1
+fi
+
 # Wait for DB if configured
 if [ -n "$DB_HOST" ] && [ -n "$DB_PORT" ]; then
   echo "Waiting for DB at $DB_HOST:$DB_PORT..."
