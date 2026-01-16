@@ -20,18 +20,16 @@ if [ ! -f artisan ]; then
   exit 1
 fi
 
-# Wait for DB if configured
+# Always install Composer dependencies to ensure vendor/autoload.php exists
+echo "Installing Composer dependencies (this may take a while)..."
+composer install --no-interaction --prefer-dist --no-progress
+
+# Wait for DB if configured (for migrations)
 if [ -n "$DB_HOST" ] && [ -n "$DB_PORT" ]; then
   echo "Waiting for DB at $DB_HOST:$DB_PORT..."
   until nc -z "$DB_HOST" "$DB_PORT"; do
     sleep 1
   done
-fi
-
-# Install dependencies if missing
-if [ ! -d vendor ]; then
-  echo "Installing Composer dependencies..."
-  composer install --no-interaction --prefer-dist
 fi
 
 # Ensure APP_KEY exists
