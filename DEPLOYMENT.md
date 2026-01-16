@@ -16,10 +16,10 @@ This doc covers deploying the Laravel backend using the production Docker stack.
 ```bash
 # Build images
 docker compose -f docker-compose.prod.yml build
-# Start services
+# Start service
 docker compose -f docker-compose.prod.yml up -d
 # Check logs
-docker compose -f docker-compose.prod.yml logs -f app web
+docker compose -f docker-compose.prod.yml logs -f app
 ```
 
 ## Post-deploy tasks
@@ -38,6 +38,9 @@ docker compose -f docker-compose.prod.yml exec app php artisan config:cache
 ## Backups & data
 - MySQL data persisted in `db_data` volume.
 - App storage persisted in `storage_data` and `bootstrap_cache` volumes.
+ - Regularly export DB dumps and storage snapshots.
+ - Use managed DB services whenever possible (RDS, Cloud SQL, etc.).
+ - Persisted state in the container should be minimized; use object storage for files.
  - Regularly export DB dumps and storage snapshots.
 
 ## Scaling & monitoring

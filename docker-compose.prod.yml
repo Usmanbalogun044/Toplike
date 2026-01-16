@@ -16,84 +16,19 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    expose:
-      - "9000"
-    volumes:
-      - storage_data:/var/www/html/storage
-      - bootstrap_cache:/var/www/html/bootstrap/cache
-    entrypoint: ["/bin/sh", "/var/www/html/.docker/scripts/entrypoint.prod.sh"]
-    command: ["php-fpm"]
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "php", "-v"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+    version: "3.9"
 
-  web:
-    build:
-      context: .
-      dockerfile: .docker/web/Dockerfile.prod
-    container_name: toplike-web-prod
-    depends_on:
-      - app
-    ports:
-      - "80:80"
-    volumes:
-      - web_logs:/var/log/nginx
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-fsS", "http://localhost/"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  db:
-    image: mysql:8.0
-    container_name: toplike-db-prod
-    environment:
-      MYSQL_DATABASE: ${DB_DATABASE}
-      MYSQL_USER: ${DB_USERNAME}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-    expose:
-      - "3306"
-    volumes:
-      - db_data:/var/lib/mysql
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-
-  redis:
-    image: redis:7-alpine
-    container_name: toplike-redis-prod
-    expose:
-      - "6379"
-    volumes:
-      - redis_data:/data
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-
-  queue:
-    build:
-      context: .
-      dockerfile: .docker/php/Dockerfile.prod
-    container_name: toplike-queue-prod
-    depends_on:
-      - app
-      - redis
-    env_file:
-      - .env.production
-    volumes:
-      - storage_data:/var/www/html/storage
-      - bootstrap_cache:/var/www/html/bootstrap/cache
+    services:
+      app:
+        build:
+          context: .
+          dockerfile: Dockerfile.prod
+        container_name: toplike-app-prod
+        env_file:
+          - .env.production
+        ports:
+          - "80:80"
+        restart: unless-stopped
     command: ["php", "artisan", "queue:work", "--tries=3", "--sleep=3"]
     restart: unless-stopped
 
