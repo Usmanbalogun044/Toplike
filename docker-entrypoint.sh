@@ -1,21 +1,15 @@
 #!/bin/sh
 set -e
 
-# Wait for DB if using MySQL/pgsql
-if [ "$DB_CONNECTION" = "mysql" ] || [ "$DB_CONNECTION" = "mariadb" ]; then
-  echo "Waiting for MySQL at $DB_HOST:$DB_PORT..."
-  until nc -z "$DB_HOST" "$DB_PORT"; do
-    sleep 1
-  done
-fi
-if [ "$DB_CONNECTION" = "pgsql" ]; then
-  echo "Waiting for Postgres at $DB_HOST:$DB_PORT..."
-  until nc -z "$DB_HOST" "$DB_PORT"; do
-    sleep 1
-  done
-fi
-
 cd /var/www/html
+
+# Wait for DB if configured
+if [ -n "$DB_HOST" ] && [ -n "$DB_PORT" ]; then
+  echo "Waiting for DB at $DB_HOST:$DB_PORT..."
+  until nc -z "$DB_HOST" "$DB_PORT"; do
+    sleep 1
+  done
+fi
 
 # Install dependencies if missing
 if [ ! -d vendor ]; then
@@ -31,8 +25,8 @@ if [ ! -L public/storage ]; then
   php artisan storage:link || true
 fi
 
-# Run pending migrations (safe for dev)
+# Run pending migrations (safe for dev/test)
 php artisan migrate --force || true
 
-# Start PHP-FPM (container CMD will be php-fpm)
-exec "$@"
+# Serve the application (built-in PHP server)
+exec php artisan serve --host=0.0.0.0 --port=8000

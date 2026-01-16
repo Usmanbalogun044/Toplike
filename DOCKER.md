@@ -1,7 +1,7 @@
-# Docker Dev Setup
+# Docker Dev Setup (Simple MVP)
 
-- Prereqs: Docker Desktop (Windows), ports 80/3306/6379/8025 available.
-- Services: app (PHP-FPM), web (Nginx), db (MySQL 8), redis, queue, mailhog.
+- Prereqs: Docker Desktop (Windows), ports 8000/3306 available.
+- Services: app (single PHP container using `php artisan serve`) and `db` (MySQL 8).
 
 ## Quick Start
 
@@ -28,8 +28,7 @@ docker compose exec app php artisan storage:link
 ```
 
 4. Open the app
-- API/UI: http://localhost
-- Mailhog: http://localhost:8025 (SMTP on 1025)
+- App: http://localhost:8000
 
 ## Common Commands
 
@@ -38,17 +37,12 @@ docker compose exec app php artisan storage:link
 docker compose exec app php artisan list
 docker compose exec app php artisan test
 
-# Queue worker logs
-docker compose logs -f queue
-
 # Stop and clean
 docker compose down -v
 ```
 
 ## Notes
-- DB defaults: host db, user toplike, pass toplike, database toplike.
-- Redis host: redis, port 6379.
-- If you change .env.docker, restart with `docker compose up -d`.
-- Windows file permissions are handled via www-data UID/GID 1000.
- - Healthchecks ensure `db`, `redis`, `web`, and `app` are up before dependencies start.
- - EntryPoint waits for DB and runs migrations/key generation on first start.
+- DB defaults: host `db`, user `toplike`, pass `toplike`, database `toplike`.
+- If you change `.env.docker`, restart with `docker compose up -d`.
+- Queue is `sync` and sessions/cache use `file` to keep the stack minimal.
+- Entry point waits for DB, installs deps, runs migrations, and starts the server on port 8000.
