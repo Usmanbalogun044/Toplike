@@ -1,66 +1,67 @@
-APP_DEBUG="true"
-APP_ENV="local"
+# WARNING: Do not commit secrets. Move production env to .env.production
+APP_DEBUG="false"
+APP_ENV="production"
 APP_FAKER_LOCALE="en_US"
 APP_FALLBACK_LOCALE="en"
-APP_KEY="base64:+B2q6TqXDuik3RV4Xv82boPMPK4iotL1Fn1XJRAPlqE="
+APP_KEY=""
 APP_LOCALE="en"
 APP_MAINTENANCE_DRIVER="file"
 APP_NAME="Toplike"
-APP_URL="https://toplike.up.railway.app"
+APP_URL="https://your-domain.example"
+
+# Cloud / storage placeholders
 AWS_ACCESS_KEY_ID=""
 AWS_BUCKET=""
 AWS_DEFAULT_REGION="us-east-1"
 AWS_SECRET_ACCESS_KEY=""
 AWS_USE_PATH_STYLE_ENDPOINT="false"
+
 BCRYPT_ROUNDS="12"
 BROADCAST_CONNECTION="log"
-CACHE_STORE="database"
+CACHE_STORE="redis"
 CLOUDINARY_NOTIFICATION_URL=""
-CLOUDINARY_UPLOAD_PRESET="your_upload_preset"
-CLOUDINARY_URL="cloudinary://885457424577322:aq1-TbPLdUn5ueAu7NJqx2T8qPA@di7mrbv4o"
-DB_CONNECTION="pgsql"
-DB_URL="postgresql://postgres:KrmSADnPUqousJJnIAVxBBZzEdKVwHet@nozomi.proxy.rlwy.net:10651/railway"
+CLOUDINARY_UPLOAD_PRESET=""
+CLOUDINARY_URL=""
+
+# Database
+DB_CONNECTION="mysql"
+DB_HOST="db"
+DB_PORT="3306"
+DB_DATABASE="toplike"
+DB_USERNAME="toplike"
+DB_PASSWORD="change-me"
+
 FILESYSTEM_DISK="local"
 LOG_CHANNEL="stack"
 LOG_DEPRECATIONS_CHANNEL="null"
-LOG_LEVEL="debug"
+LOG_LEVEL="info"
 LOG_STACK="single"
+
+# Mail placeholders
 MAIL_ENCRYPTION="tls"
-MAIL_FROM_ADDRESS="usmanbalogun044@gmail.com"
+MAIL_FROM_ADDRESS="noreply@your-domain.example"
 MAIL_FROM_NAME="${APP_NAME}"
-MAIL_HOST="smtp-relay.brevo.com"
+MAIL_HOST="smtp"
 MAIL_MAILER="smtp"
-MAIL_PASSWORD="k4yOJNrBh5ILpdM9"
+MAIL_PASSWORD=""
 MAIL_PORT="587"
-MAIL_USERNAME="8583bb004@smtp-brevo.com"
+MAIL_USERNAME=""
+
 MEMCACHED_HOST="127.0.0.1"
-PAYSTACK_PUBLIC_KEY="pk_test_d77e1d6c0761ff74f37b8c49251fea0e0e1f1b44"
-PAYSTACK_SECRET_KEY="sk_test_c97b28258509856dd714f793ad4cb5bd26de9a48"
+PAYSTACK_PUBLIC_KEY=""
+PAYSTACK_SECRET_KEY=""
 PHP_CLI_SERVER_WORKERS="4"
-QUEUE_CONNECTION="database"
+
+QUEUE_CONNECTION="redis"
 REDIS_CLIENT="phpredis"
-REDIS_HOST="127.0.0.1"
+REDIS_HOST="redis"
 REDIS_PASSWORD="null"
 REDIS_PORT="6379"
-SESSION_DOMAIN="null"
-SESSION_DRIVER="database"
+SESSION_DOMAIN="your-domain.example"
+SESSION_DRIVER="redis"
 SESSION_ENCRYPT="false"
 SESSION_LIFETIME="120"
 SESSION_PATH="/"
 VITE_APP_NAME="${APP_NAME}"
 
-
-
-Hostname:
-localhost
-Database:
-kokang1_express
-Username:
-kokang1_express
-Password:
-expressdata
-
-php artisan migrate
-php artisan serve --host=0.0.0.0 --port=6000
-npm run dev -- --host 0.0.0.0 --port 8080
-DATABASE_URL=postgresql://postgres:toplike@db.enttberhvbtrlbvisfiu.supabase.co:5432/postgres
+# See DEPLOYMENT.md and .env.production.example for the canonical production env.
