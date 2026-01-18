@@ -15,6 +15,12 @@ class WithdrawalController extends Controller
     {
     }
 
+    /**
+     * Request a withdrawal
+     * Initiate a withdrawal to a verified bank account.
+     *
+     * @tags Withdrawals
+     */
     public function store(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -51,6 +57,12 @@ class WithdrawalController extends Controller
         }
     }
 
+    /**
+     * List withdrawals
+     * Paginated list of user's withdrawal requests.
+     *
+     * @tags Withdrawals
+     */
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();

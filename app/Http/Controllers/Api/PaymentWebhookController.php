@@ -12,6 +12,13 @@ use Illuminate\Support\Facades\Log;
 
 class PaymentWebhookController extends Controller
 {
+    /**
+     * Handle Paystack webhook events
+     * Validate signature and process incoming payment events.
+     *
+     * @tags Webhooks
+     * @unauthenticated
+     */
     public function handle(Request $request, WalletService $walletService): JsonResponse
     {
         // Verify signature

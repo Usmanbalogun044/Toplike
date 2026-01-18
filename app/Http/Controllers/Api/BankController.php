@@ -15,6 +15,13 @@ class BankController extends Controller
     {
     }
 
+    /**
+     * List supported banks
+     * Retrieve a list of banks from the provider.
+     *
+     * @tags Banks
+     * @unauthenticated
+     */
     public function list(): JsonResponse
     {
         try {
@@ -25,6 +32,13 @@ class BankController extends Controller
         }
     }
 
+    /**
+     * Resolve account name
+     * Resolve account holder name by account number and bank code.
+     *
+     * @tags Banks
+     * @unauthenticated
+     */
     public function resolve(Request $request): JsonResponse
     {
         $request->validate([
@@ -41,6 +55,12 @@ class BankController extends Controller
 
     /**
      * Verify and save user's bank account using Paystack SDK directly.
+     */
+    /**
+     * Verify and save user's bank account
+     * Validate account with Paystack and persist bank details.
+     *
+     * @tags Banks
      */
     public function save(Request $request): JsonResponse
     {

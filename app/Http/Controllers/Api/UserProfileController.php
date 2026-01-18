@@ -16,6 +16,13 @@ class UserProfileController extends Controller
         $this->profileService = $profileService;
     }
 
+    /**
+     * Update the user's profile
+     * Modify profile details and optionally upload an avatar.
+     *
+     * @tags Profile
+     * @requestMediaType multipart/form-data
+     */
     public function update(UserProfileRequest $request)
     {
         $user = $request->user();

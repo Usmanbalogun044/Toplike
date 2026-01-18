@@ -14,6 +14,13 @@ class PostController extends Controller
     {
     }
 
+    /**
+     * Create a post for the active challenge
+     * Upload media and caption to participate in the current challenge.
+     *
+     * @tags Posts
+     * @requestMediaType multipart/form-data
+     */
     public function store(Request $request): JsonResponse
     {
         $request->validate([
@@ -35,6 +42,12 @@ class PostController extends Controller
         ], 201);
     }
 
+    /**
+     * Show a single post
+     * Retrieve a post with user profile and challenge info.
+     *
+     * @tags Posts
+     */
     public function show(Post $post): JsonResponse
     {
         return response()->json([

@@ -14,6 +14,12 @@ class LikeController extends Controller
     {
     }
 
+    /**
+     * Like a post
+     * Mark a post as liked by the current user.
+     *
+     * @tags Likes
+     */
     public function like(Request $request, Post $post): JsonResponse
     {
         $user = $request->user();
@@ -25,6 +31,12 @@ class LikeController extends Controller
         ]);
     }
 
+    /**
+     * Unlike a post
+     * Remove like from a post for the current user.
+     *
+     * @tags Likes
+     */
     public function unlike(Request $request, Post $post): JsonResponse
     {
         $user = $request->user();

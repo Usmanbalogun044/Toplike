@@ -15,6 +15,12 @@ class WalletController extends Controller
     {
     }
 
+    /**
+     * Get wallet details
+     * Retrieve current balances and virtual account info.
+     *
+     * @tags Wallet
+     */
     public function show(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -34,6 +40,12 @@ class WalletController extends Controller
         ]);
     }
 
+    /**
+     * List wallet transactions
+     * Paginated list of recent wallet activity.
+     *
+     * @tags Wallet
+     */
     public function transactions(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -54,6 +66,12 @@ class WalletController extends Controller
         ]);
     }
 
+    /**
+     * Provision a dedicated virtual account (Paystack)
+     * Create a DVA via Paystack for bank transfer funding.
+     *
+     * @tags Wallet
+     */
     public function provisionVirtualAccount(Request $request): JsonResponse
     {
         $user = $request->user();

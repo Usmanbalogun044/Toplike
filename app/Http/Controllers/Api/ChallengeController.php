@@ -16,6 +16,13 @@ class ChallengeController extends Controller
     {
     }
 
+    /**
+     * Get current active challenge
+     * Retrieve details of the current active challenge.
+     *
+     * @tags Challenges
+     * @unauthenticated
+     */
     public function current(): JsonResponse
     {
         $challenge = $this->challengeService->getActiveChallenge();
@@ -31,6 +38,13 @@ class ChallengeController extends Controller
         ]);
     }
 
+    /**
+     * List challenges
+     * Paginated list of all challenges.
+     *
+     * @tags Challenges
+     * @unauthenticated
+     */
     public function index(): JsonResponse
     {
         $challenges = $this->challengeService->listChallenges();
@@ -46,6 +60,13 @@ class ChallengeController extends Controller
         ]);
     }
 
+    /**
+     * Get challenge leaderboard
+     * Retrieve leaderboard entries for the specified challenge.
+     *
+     * @tags Challenges
+     * @unauthenticated
+     */
     public function leaderboard(Challenge $challenge): JsonResponse
     {
         $entries = $this->challengeService->getLeaderboard($challenge);
@@ -55,6 +76,12 @@ class ChallengeController extends Controller
         ]);
     }
 
+    /**
+     * Join the active challenge
+     * Join using wallet balance or payment provider.
+     *
+     * @tags Challenges
+     */
     public function join(Request $request, WalletService $walletService): JsonResponse
     {
         $user = $request->user();
@@ -63,6 +90,12 @@ class ChallengeController extends Controller
         return response()->json($result);
     }
 
+    /**
+     * Payment verification callback
+     * Verify payment and complete challenge join process.
+     *
+     * @tags Challenges
+     */
     public function joinCallback(Request $request, PaymentGatewayService $gateway): JsonResponse
     {
         $user = $request->user();
@@ -81,6 +114,13 @@ class ChallengeController extends Controller
     }
 
     // Public webhook (no auth): Paystack server callback
+    /**
+     * Paystack webhook (public)
+     * Handle Paystack server callbacks for challenge payments.
+     *
+     * @tags Challenges
+     * @unauthenticated
+     */
     public function webhook(Request $request, PaymentGatewayService $gateway): JsonResponse
     {
         $reference = $request->input('data.reference') ?? $request->input('reference');

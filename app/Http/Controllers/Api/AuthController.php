@@ -20,6 +20,13 @@ class AuthController extends Controller
         $this->authService = $authService;
     }
 
+    /**
+     * Register a new user
+     * Create a new account and start the verification flow.
+     *
+     * @tags Auth
+     * @unauthenticated
+     */
     public function register(RegisterRequest $request): JsonResponse
     {
         try {
@@ -34,6 +41,14 @@ class AuthController extends Controller
         }
     }
 
+    /**
+     * Login and obtain a JWT token
+     * Exchange user credentials for a bearer token.
+     *
+     * @tags Auth
+     * @unauthenticated
+     * @operationId authLogin
+     */
     public function login(LoginRequest $request): JsonResponse
     {
         try {
@@ -51,6 +66,14 @@ class AuthController extends Controller
         }
     }
 
+    /**
+     * Verify an OTP code
+     * Complete OTP verification for registration or login.
+     *
+     * @tags Auth
+     * @unauthenticated
+     * @operationId authVerifyOtp
+     */
     public function verifyOtp(VerifyOtpRequest $request): JsonResponse
     {
         try {
@@ -68,6 +91,12 @@ class AuthController extends Controller
         }
     }
 
+    /**
+     * Logout the current user
+     * Invalidate the current token and end the session.
+     *
+     * @tags Auth
+     */
     public function logout(): JsonResponse
     {
         $this->authService->logout();
@@ -75,6 +104,13 @@ class AuthController extends Controller
         return response()->json(['message' => 'Successfully logged out']);
     }
 
+    /**
+     * Get the current authenticated user
+     * Return user details with related profile, wallet, posts, and withdrawals.
+     *
+     * @tags Auth
+     * @operationId authMe
+     */
     public function me(): JsonResponse
     {
         return response()->json(new UserResource(auth()->user()->load(['profile', 'wallet', 'posts', 'withdrawals'])));
