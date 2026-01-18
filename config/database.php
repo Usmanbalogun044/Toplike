@@ -45,7 +45,7 @@ return [
 
         'mysql' => [
             'driver' => 'mysql',
-            'url' => env('DB_URL'),
+            'url' => env('DATABASE_URL', env('DB_URL')),
             'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '3306'),
             'database' => env('DB_DATABASE', 'laravel'),
@@ -56,6 +56,10 @@ return [
             'collation' => env('DB_COLLATION', 'utf8mb4_unicode_ci'),
             'prefix' => '',
             'prefix_indexes' => true,
+            // Emulate prepared statements for PgBouncer transaction pooling (e.g., Supabase pooler)
+            'options' => extension_loaded('pdo_pgsql') ? array_filter([
+                \PDO::ATTR_EMULATE_PREPARES => env('PGSQL_ATTR_EMULATE_PREPARES', true),
+            ]) : [],
             'strict' => true,
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
