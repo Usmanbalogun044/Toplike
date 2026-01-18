@@ -30,7 +30,10 @@ if [ "$DB_CONNECTION" = "sqlite" ]; then
 fi
 
 # Ensure APP_KEY exists
-php artisan key:generate --force || true
+if [ -z "$APP_KEY" ]; then
+    echo "APP_KEY is missing. Generating one..."
+    php artisan key:generate --force
+fi
 
 # Link storage if needed
 if [ ! -L public/storage ]; then
@@ -39,7 +42,8 @@ fi
 
 # Migrations on start when enabled
 if [ "$MIGRATE_ON_START" = "true" ]; then
-  php artisan migrate --force || true
+    echo "Running migrations..."
+    php artisan migrate --force
 fi
 
 # Warm caches

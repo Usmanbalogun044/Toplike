@@ -1,0 +1,70 @@
+services:
+  - type: web
+    name: toplike
+    env: docker
+    dockerfilePath: ./docker/production/Dockerfile
+    plan: starter
+    region: oregon
+    numInstances: 1
+    healthCheckPath: /
+    envVars:
+      - key: APP_KEY
+        generateValue: true
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: APP_URL
+        sync: false
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        fromDatabase:
+          name: toplike-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: toplike-db
+          property: port
+      - key: DB_DATABASE
+        fromDatabase:
+          name: toplike-db
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: toplike-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: toplike-db
+          property: password
+      - key: REDIS_HOST
+        fromService:
+          type: redis
+          name: toplike-redis
+          property: host
+      - key: REDIS_PORT
+        fromService:
+          type: redis
+          name: toplike-redis
+          property: port
+      - key: SESSION_DRIVER
+        value: redis
+      - key: CACHE_DRIVER
+        value: redis
+      - key: QUEUE_CONNECTION
+        value: redis
+      - key: MIGRATE_ON_START
+        value: true
+
+databases:
+  - name: toplike-db
+    databaseName: toplike
+    user: toplike
+    plan: starter # Free tier PostgreSQL expires after 90 days
+    ipAllowList: [] # Only allow internal connections
+
+  - name: toplike-redis
+    type: redis
+    plan: starter
+    ipAllowList: [] # Only allow internal connections
