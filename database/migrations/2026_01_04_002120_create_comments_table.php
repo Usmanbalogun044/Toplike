@@ -15,10 +15,18 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->foreignUuid('user_id')->constrained()->cascadeOnDelete();
             $table->foreignUuid('post_id')->constrained()->cascadeOnDelete();
-            $table->foreignUuid('parent_id')->nullable()->constrained('comments')->cascadeOnDelete();
+            $table->uuid('parent_id')->nullable();
             $table->text('content');
             $table->timestamps();
             $table->softDeletes();
+        });
+
+        // Add self-referential foreign key after table is created (PostgreSQL compatibility)
+        Schema::table('comments', function (Blueprint $table) {
+            $table->foreign('parent_id')
+                  ->references('id')
+                  ->on('comments')
+                  ->cascadeOnDelete();
         });
     }
 
