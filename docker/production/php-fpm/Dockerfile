@@ -32,6 +32,9 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 # Copy application files
 COPY . .
 
+# Provide initial storage skeleton for entrypoint
+COPY ./storage /var/www/storage-init
+
 # Install PHP dependencies
 RUN composer install \
     --no-dev \
