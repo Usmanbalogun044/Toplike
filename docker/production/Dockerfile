@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libxml2-dev \
     libpq-dev \
+    libsqlite3-dev \
     curl \
     nginx \
     supervisor \
@@ -19,9 +20,10 @@ RUN apt-get update && apt-get install -y \
 
 # PHP extensions
 RUN docker-php-ext-configure intl \
-    && docker-php-ext-install -j"$(nproc)" \
+     && docker-php-ext-install -j"$(nproc)" \
        pdo_mysql \
        pdo_pgsql \
+         pdo_sqlite \
        bcmath \
        intl \
        zip \

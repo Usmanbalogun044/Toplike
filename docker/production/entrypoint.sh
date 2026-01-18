@@ -16,6 +16,19 @@ if [ ! -d vendor ]; then
   composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
 fi
 
+# Auto-create SQLite database file when using sqlite
+if [ "$DB_CONNECTION" = "sqlite" ]; then
+  DB_FILE="${DB_DATABASE:-/var/www/html/database/database.sqlite}"
+  DB_DIR=$(dirname "$DB_FILE")
+  if [ ! -d "$DB_DIR" ]; then
+    mkdir -p "$DB_DIR"
+  fi
+  if [ ! -f "$DB_FILE" ]; then
+    echo "Initializing SQLite database at $DB_FILE"
+    touch "$DB_FILE"
+  fi
+fi
+
 # Ensure APP_KEY exists
 php artisan key:generate --force || true
 
