@@ -3,31 +3,33 @@
 namespace App\Providers;
 
 use Illuminate\Support\Facades\Gate;
-use Laravel\Telescope\IncomingEntry;
 use Laravel\Telescope\Telescope;
-use Laravel\Telescope\TelescopeApplicationServiceProvider;
+use Illuminate\Support\ServiceProvider;
 
-class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
+class TelescopeServiceProvider extends ServiceProvider
 {
     /**
      * Register any application services.
      */
     public function register(): void
     {
-        // Telescope::night();
+        // Only configure Telescope when the package is installed
+        if (class_exists(\Laravel\Telescope\Telescope::class)) {
+            // Telescope::night();
 
-        $this->hideSensitiveRequestDetails();
+            $this->hideSensitiveRequestDetails();
 
-        $isLocal = $this->app->environment('local');
+            $isLocal = $this->app->environment('local');
 
-        Telescope::filter(function (IncomingEntry $entry) use ($isLocal) {
-            return $isLocal ||
-                   $entry->isReportableException() ||
-                   $entry->isFailedRequest() ||
-                   $entry->isFailedJob() ||
-                   $entry->isScheduledTask() ||
-                   $entry->hasMonitoredTag();
-        });
+            Telescope::filter(function ($entry) use ($isLocal) {
+                return $isLocal ||
+                       $entry->isReportableException() ||
+                       $entry->isFailedRequest() ||
+                       $entry->isFailedJob() ||
+                       $entry->isScheduledTask() ||
+                       $entry->hasMonitoredTag();
+            });
+        }
     }
 
     /**
